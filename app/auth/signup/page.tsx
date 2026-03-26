@@ -105,7 +105,7 @@ export default function SignUpPage() {
                 {/* OAuth */}
                 <div className="p-5 flex flex-col gap-2.5">
                   <button
-                    className="flex items-center justify-center gap-3 w-full py-2.5 rounded-xl border border-neutral-300 text-sm hover:border-neutral-500 hover:bg-white transition-all cursor-pointer"
+                    className="flex items-center justify-center gap-3 w-full py-2.5 rounded-xl border border-neutral-300 text-sm hover:border-neutral-500 hover:bg-white cursor-pointer"
                     style={{ color: "#333", fontFamily: "'Helvetica Neue', sans-serif", backgroundColor: "rgba(255,255,255,0.6)" }}
                   >
                     <GoogleIcon />
@@ -113,7 +113,7 @@ export default function SignUpPage() {
                   </button>
 
                   <button
-                    className="flex items-center justify-center gap-3 w-full py-2.5 rounded-xl border border-neutral-300 text-sm hover:border-neutral-500 hover:bg-white transition-all cursor-pointer"
+                    className="flex items-center justify-center gap-3 w-full py-2.5 rounded-xl border border-neutral-300 text-sm hover:border-neutral-500 hover:bg-white cursor-pointer"
                     style={{ color: "#333", fontFamily: "'Helvetica Neue', sans-serif", backgroundColor: "rgba(255,255,255,0.6)" }}
                   >
                     <GitHubIcon />
