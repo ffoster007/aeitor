@@ -24,8 +24,8 @@ export const signUpSchema = z
   });
 
 export const signInSchema = z.object({
-  email: z.string().email("Invalid email format"),
-  password: z.string().min(1, "Password is required"),
+  username: z.string().min(3, "Username must be at least 3 characters long").max(20, "Username must be at most 20 characters long"),
+  password: z.string().min(8, "Password must be at least 8 characters long").max(72, "Password must be at most 72 characters long"),
 });
 
 export type SignUpInput = z.infer<typeof signUpSchema>;

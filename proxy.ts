@@ -1,4 +1,4 @@
-// middleware.ts  (root ของ project, next to app/)
+// proxy.ts  (root ของ project)
 
 import { NextResponse, type NextRequest } from "next/server";
 import { jwtVerify } from "jose";
@@ -10,7 +10,7 @@ const PROTECTED_PREFIXES = ["/dashboard", "/settings", "/profile"];
 // Routes สำหรับ guest (login แล้วจะ redirect ออก)
 const AUTH_PREFIXES = ["/signin", "/signup"];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const isProtected = PROTECTED_PREFIXES.some((p) => pathname.startsWith(p));
@@ -30,31 +30,39 @@ export async function middleware(request: NextRequest) {
       await jwtVerify(accessToken, secret);
       isAuthenticated = true;
     } catch {
-      // Token หมดอายุหรือ invalid → ลอง refresh ด้านล่าง
+      // token หมดอายุหรือ invalid
     }
   }
 
-  // 2. ถ้า access token ใช้ไม่ได้ → ลอง refresh ผ่าน API route
+  // 2. ถ้า access token ใช้ไม่ได้ → ลอง refresh
   if (!isAuthenticated) {
     const refreshToken = request.cookies.get("refresh_token")?.value;
+
     if (refreshToken) {
       const refreshUrl = new URL("/api/auth/refresh", request.url);
+
       const refreshResponse = await fetch(refreshUrl, {
         method: "POST",
-        headers: { cookie: request.headers.get("cookie") ?? "" },
+        headers: {
+          cookie: request.headers.get("cookie") ?? "",
+        },
       });
 
       if (refreshResponse.ok) {
         isAuthenticated = true;
-        // Forward cookies ใหม่ที่ได้จาก refresh
+
         const response = NextResponse.next();
-        refreshResponse.headers.getSetCookie().forEach((cookie) => {
-          response.headers.append("Set-Cookie", cookie);
-        });
+
+        // ⚠️ บาง runtime ไม่มี getSetCookie → fallback
+        const setCookie = refreshResponse.headers.get("set-cookie");
+        if (setCookie) {
+          response.headers.append("Set-Cookie", setCookie);
+        }
 
         if (isAuthRoute) {
           return NextResponse.redirect(new URL("/dashboard", request.url));
         }
+
         return response;
       }
     }

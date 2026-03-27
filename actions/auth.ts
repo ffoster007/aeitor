@@ -77,7 +77,7 @@ export async function signUpAction(formData: FormData): Promise<ActionResult> {
 export async function signInAction(formData: FormData): Promise<ActionResult> {
   // 1. Validate
   const raw = {
-    email: formData.get("email"),
+    username: formData.get("username"),
     password: formData.get("password"),
   };
 
@@ -86,11 +86,11 @@ export async function signInAction(formData: FormData): Promise<ActionResult> {
     return { success: false, errors: parsed.error.flatten().fieldErrors };
   }
 
-  const { email, password } = parsed.data;
+  const { username, password } = parsed.data;
 
   // 2. หา user — ใช้ message กว้าง ๆ เพื่อป้องกัน user enumeration
   const user = await prisma.user.findUnique({
-    where: { email },
+    where: { username },
     select: { id: true, email: true, username: true, password: true },
   });
 
@@ -99,7 +99,7 @@ export async function signInAction(formData: FormData): Promise<ActionResult> {
   const isValid = await bcrypt.compare(password, user?.password ?? dummyHash);
 
   if (!user || !isValid) {
-    return { success: false, errors: { _form: ["Email หรือ Password ไม่ถูกต้อง"] } };
+    return { success: false, errors: { _form: ["Username หรือ Password ไม่ถูกต้อง"] } };
   }
 
   // 3. ออก tokens และ set cookies

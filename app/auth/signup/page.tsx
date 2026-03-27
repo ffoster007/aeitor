@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Eye, EyeOff, ArrowRight, ArrowLeft, Mail, Check, AlertCircle } from "lucide-react";
+import { signUpAction } from "@/actions/auth";
+import type { ActionResult } from "@/types/actions";
 
 // Google brand SVG (no lucide equivalent)
 const GoogleIcon = () => (
@@ -32,16 +34,28 @@ export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [confirmTouched, setConfirmTouched] = useState(false);
+  const [result, setResult] = useState<ActionResult | null>(null);
+  const [isPending, startTransition] = useTransition();
 
+  const errors = result && !result.success ? result.errors : {};
   const passwordsMatch = password === confirmPassword;
   const confirmError = confirmTouched && confirmPassword.length > 0 && !passwordsMatch;
   const confirmSuccess = confirmTouched && confirmPassword.length > 0 && passwordsMatch;
-  const canSubmit = agreed && passwordsMatch && password.length >= 8 && confirmPassword.length > 0;
+  const canSubmit = agreed && passwordsMatch && password.length >= 8 && confirmPassword.length > 0 && !isPending;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setConfirmTouched(true);
-    if (canSubmit) setStep("verify");
+    if (!canSubmit) return;
+    const formData = new FormData(e.currentTarget);
+    startTransition(async () => {
+      const res = await signUpAction(formData);
+      if (res?.success) {
+        setStep("verify");
+      } else {
+        setResult(res);
+      }
+    });
   };
 
   return (
@@ -102,6 +116,15 @@ export default function SignUpPage() {
                 className="rounded-2xl border border-neutral-300 overflow-hidden shadow-sm"
                 style={{ backgroundColor: "rgba(240,237,230,0.85)", backdropFilter: "blur(8px)" }}
               >
+                {/* Form-level error */}
+                {errors._form && (
+                  <div className="mx-5 mt-5 px-3.5 py-2.5 rounded-xl border border-red-200 bg-red-50">
+                    <p className="text-xs text-red-600" style={{ fontFamily: "'Helvetica Neue', sans-serif" }}>
+                      {errors._form[0]}
+                    </p>
+                  </div>
+                )}
+
                 {/* OAuth */}
                 <div className="p-5 flex flex-col gap-2.5">
                   <button
@@ -129,7 +152,7 @@ export default function SignUpPage() {
                 </div>
 
                 {/* Form fields */}
-                <form onSubmit={handleSubmit} className="px-5 pb-5 flex flex-col gap-3">
+                <form onSubmit={handleSubmit} className="px-5 pb-5 flex flex-col gap-3" noValidate>
 
                   {/* Username */}
                   <div className="flex flex-col gap-1.5">
@@ -137,14 +160,25 @@ export default function SignUpPage() {
                       Username
                     </label>
                     <input
+                      name="username"
                       type="text"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="Username"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 text-sm outline-none focus:border-neutral-600 transition-colors"
-                      style={{ backgroundColor: "rgba(255,255,255,0.7)", color: "#111", fontFamily: "'Helvetica Neue', sans-serif" }}
+                      className="w-full px-3.5 py-2.5 rounded-xl border text-sm outline-none focus:border-neutral-600 transition-colors"
+                      style={{
+                        backgroundColor: "rgba(255,255,255,0.7)",
+                        color: "#111",
+                        fontFamily: "'Helvetica Neue', sans-serif",
+                        borderColor: errors.username ? "#ef4444" : "#d1d5db",
+                      }}
                       required
                     />
+                    {errors.username && (
+                      <p className="text-xs text-red-500" style={{ fontFamily: "'Helvetica Neue', sans-serif" }}>
+                        {errors.username[0]}
+                      </p>
+                    )}
                   </div>
 
                   {/* Email */}
@@ -153,14 +187,25 @@ export default function SignUpPage() {
                       Email
                     </label>
                     <input
+                      name="email"
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="jane@gmail.com"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 text-sm outline-none focus:border-neutral-600 transition-colors"
-                      style={{ backgroundColor: "rgba(255,255,255,0.7)", color: "#111", fontFamily: "'Helvetica Neue', sans-serif" }}
+                      className="w-full px-3.5 py-2.5 rounded-xl border text-sm outline-none focus:border-neutral-600 transition-colors"
+                      style={{
+                        backgroundColor: "rgba(255,255,255,0.7)",
+                        color: "#111",
+                        fontFamily: "'Helvetica Neue', sans-serif",
+                        borderColor: errors.email ? "#ef4444" : "#d1d5db",
+                      }}
                       required
                     />
+                    {errors.email && (
+                      <p className="text-xs text-red-500" style={{ fontFamily: "'Helvetica Neue', sans-serif" }}>
+                        {errors.email[0]}
+                      </p>
+                    )}
                   </div>
 
                   {/* Password */}
@@ -170,12 +215,18 @@ export default function SignUpPage() {
                     </label>
                     <div className="relative">
                       <input
+                        name="password"
                         type={showPassword ? "text" : "password"}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="Min. 8 characters"
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 text-sm outline-none focus:border-neutral-600 transition-colors pr-10"
-                        style={{ backgroundColor: "rgba(255,255,255,0.7)", color: "#111", fontFamily: "'Helvetica Neue', sans-serif" }}
+                        className="w-full px-3.5 py-2.5 rounded-xl border text-sm outline-none focus:border-neutral-600 transition-colors pr-10"
+                        style={{
+                          backgroundColor: "rgba(255,255,255,0.7)",
+                          color: "#111",
+                          fontFamily: "'Helvetica Neue', sans-serif",
+                          borderColor: errors.password ? "#ef4444" : "#d1d5db",
+                        }}
                         required
                         minLength={8}
                       />
@@ -188,6 +239,11 @@ export default function SignUpPage() {
                         {showPassword ? <EyeOff size={15} strokeWidth={1.5} /> : <Eye size={15} strokeWidth={1.5} />}
                       </button>
                     </div>
+                    {errors.password && (
+                      <p className="text-xs text-red-500" style={{ fontFamily: "'Helvetica Neue', sans-serif" }}>
+                        {errors.password[0]}
+                      </p>
+                    )}
                     {/* Password strength bar */}
                     {password.length > 0 && (
                       <div className="flex gap-1 mt-1">
@@ -214,6 +270,7 @@ export default function SignUpPage() {
                     </label>
                     <div className="relative">
                       <input
+                        name="confirmPassword"
                         type={showConfirmPassword ? "text" : "password"}
                         value={confirmPassword}
                         onChange={(e) => {
@@ -301,8 +358,12 @@ export default function SignUpPage() {
                       cursor: canSubmit ? "pointer" : "not-allowed",
                     }}
                   >
-                    Create account
-                    <ArrowRight size={14} strokeWidth={2} />
+                    {isPending ? "Creating account..." : (
+                      <>
+                        Create account
+                        <ArrowRight size={14} strokeWidth={2} />
+                      </>
+                    )}
                   </button>
                 </form>
               </div>
