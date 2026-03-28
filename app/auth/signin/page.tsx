@@ -186,7 +186,7 @@ export default function SignInPage() {
               </div>
 
               <button type="submit" disabled={isPending}
-                className="mt-1 w-full py-2.5 rounded-xl text-sm text-white hover:opacity-80 transition-opacity flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="mt-1 w-full py-2.5 rounded-xl text-sm text-white hover:opacity-80 transition-opacity flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 style={{ backgroundColor: "#1a1a1a", fontFamily: "'Helvetica Neue', sans-serif" }}>
                 {isPending ? "Signing in..." : <> Sign in <ArrowRight size={14} strokeWidth={2} /> </>}
               </button>
