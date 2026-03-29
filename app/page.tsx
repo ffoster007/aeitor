@@ -50,7 +50,7 @@ export default function LandingPage() {
           className="hidden md:flex gap-7 text-sm"
           style={{ color: "#444", fontFamily: "'Helvetica Neue', sans-serif", letterSpacing: "0.01em" }}
         >
-          {["Product", "Solutions", "Docs", "Pricing"].map((item) => (
+          {["Docs", "Pricing", "Contract", "FAQ"].map((item) => (
             <li key={item} className="cursor-pointer hover:text-black transition-colors">
               {item}
             </li>
