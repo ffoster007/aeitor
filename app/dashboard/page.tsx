@@ -1,8 +1,8 @@
 import React from 'react'
 import ComponentsPage from '@/components/page'
+import { getCurrentUser } from '@/lib/session'
 
-function DashboardPage() {
-  return <ComponentsPage />
+export default async function DashboardPage() {
+  const user = await getCurrentUser();
+  return <ComponentsPage user={user} />
 }
-
-export default DashboardPage

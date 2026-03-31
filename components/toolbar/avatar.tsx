@@ -188,7 +188,7 @@ export default function Avatar({ user }: { user: UserInfo }) {
           <DropdownItem
             icon={<Settings size={14} strokeWidth={1.8} />}
             label="Settings"
-            onClick={() => navigate("/dashboard/settings")}
+            onClick={() => navigate("/dashboard/setting")}
           />
           <DropdownItem
             icon={<CreditCard size={14} strokeWidth={1.8} />}

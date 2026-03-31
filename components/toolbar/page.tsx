@@ -1,23 +1,17 @@
+"use client";
 // components/toolbar.tsx
-// Server Component — ดึง user จาก JWT cookie แล้วส่งไปให้ Avatar
+// Client Component — รับข้อมูล user จาก props
 
 import Image from "next/image";
-import { getCurrentUser } from "@/lib/session";
-import { prisma } from "@/lib/prisma";
 import Avatar from "./avatar";
 
-export default async function Toolbar() {
-  // ดึง user จาก JWT access token (ไม่ต้อง fetch API)
-  const session = await getCurrentUser();
+type ToolbarUser = {
+  sub: string;
+  email: string;
+  username: string;
+} | null;
 
-  // ดึงข้อมูลเพิ่มเติมจาก DB ถ้า login อยู่ (เช่น avatarUrl)
-  const user = session
-    ? await prisma.user.findUnique({
-        where: { id: session.sub },
-        select: { username: true, email: true },
-      })
-    : null;
-
+export default function Toolbar({ user }: { user: ToolbarUser }) {
   return (
     <header className="h-10 bg-[#161616] border-b border-[#2b2b2c] flex items-center text-white text-xs px-2 w-full flex-none sticky top-0 z-40">
       {/* Left — Logo */}
@@ -39,10 +33,12 @@ export default async function Toolbar() {
       <div className="flex-1" />
 
       {/* Right — Avatar (แสดงเฉพาะตอน login) */}
-      {user && (
+      {user ? (
         <div className="flex items-center px-2">
-          <Avatar user={user} />
+          <Avatar user={{ username: user.username, email: user.email }} />
         </div>
+      ) : (
+        <div className="px-2 text-[#9e9e9e]">Guest</div>
       )}
     </header>
   );
