@@ -1,10 +1,10 @@
 "use client";
 import React, { useState } from "react";
-import { Box, Boxes, Layers } from "lucide-react";
+import { House, Boxes, Layers } from "lucide-react";
 
 const tabs = [
+  { id: 'Home', icon: House, label: 'Home' },
   { id: 'workspace', icon: Layers, label: 'Workspace' },
-  { id: 'toolbox', icon: Box, label: 'ToolBox' },
   { id: 'workbox', icon: Boxes, label: 'WorkBox' },
 ] as const;
 
