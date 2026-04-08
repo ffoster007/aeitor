@@ -1,20 +1,11 @@
 "use client";
-import React, { useState } from 'react'
+import type { ToolbarProps } from './toolbar/page';
 import ActivityBar from '../components/activitybar/page';
 import Toolbar from './toolbar/page';
 
-type User = {
-  sub: string;
-  email: string;
-  username: string;
-};
+type PageProps = ToolbarProps;
 
-type PageProps = {
-  user: User | null;
-  children?: React.ReactNode;
-};
-
-export default function Page({ user, children }: PageProps) {
+export default function Page({ user }: PageProps) {
   return (
     <div className="h-screen flex flex-col">
       <Toolbar user={user} />

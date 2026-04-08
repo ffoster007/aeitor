@@ -9,15 +9,20 @@ export type ToolbarUser = {
   sub: string;
   email: string;
   username: string;
-} | null;
+};
 
-export default function Toolbar({ user }: { user?: ToolbarUser } = {}) {
-  const currentUser: ToolbarUser =
-    user ?? {
-      sub: "guest",
-      email: "guest@example.com",
-      username: "Guest",
-    };
+export type ToolbarProps = {
+  user?: ToolbarUser | null;
+};
+
+const defaultUser: ToolbarUser = {
+  sub: "guest",
+  email: "guest@example.com",
+  username: "Guest",
+};
+
+export default function Toolbar({ user }: ToolbarProps = {}) {
+  const currentUser = user ?? defaultUser;
 
   const isSignedIn = Boolean(user);
 
