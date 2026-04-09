@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import PricingSection from "./landing/page";
 
 const VENDORS = [
   {
@@ -122,9 +123,15 @@ export default function LandingPage() {
           className="hidden md:flex gap-7 text-sm"
           style={{ color: "#444", fontFamily: "'Helvetica Neue', sans-serif", letterSpacing: "0.01em" }}
         >
-          {["Docs", "Pricing", "Contract"].map((item) => (
-            <li key={item} className="cursor-pointer hover:text-black transition-colors">
-              {item}
+          {[
+            { label: "Docs", href: "#overview" },
+            { label: "Pricing", href: "#pricing" },
+            { label: "Contract", href: "#contracts" },
+          ].map((item) => (
+            <li key={item.label}>
+              <a href={item.href} className="cursor-pointer hover:text-black transition-colors">
+                {item.label}
+              </a>
             </li>
           ))}
         </ul>
@@ -148,7 +155,7 @@ export default function LandingPage() {
       </nav>
 
       {/* ─── CONTRACT RENEWAL DASHBOARD SECTION ─── */}
-      <section className="max-w-5xl mx-auto px-8 pb-24 pt-10">
+      <section id="overview" className="max-w-5xl mx-auto px-8 pb-24 pt-10">
         {/* Section heading */}
         <div className="flex flex-col items-center text-center mb-10">
           <h2
@@ -200,7 +207,11 @@ export default function LandingPage() {
         </div>
 
         {/* Dashboard panel */}
-        <div className="rounded-2xl border border-neutral-200 overflow-hidden" style={{ backgroundColor: "#fff" }}>
+        <div
+          id="contracts"
+          className="rounded-2xl border border-neutral-200 overflow-hidden"
+          style={{ backgroundColor: "#fff" }}
+        >
 
           {/* Panel header */}
           <div
@@ -311,6 +322,8 @@ export default function LandingPage() {
           ))}
         </div>
       </section>
+
+      <PricingSection />
     </main>
   );
 }
