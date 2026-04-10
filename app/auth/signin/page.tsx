@@ -4,6 +4,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 import { Eye, EyeOff, ArrowRight } from "lucide-react";
 import { signInAction } from "@/actions/auth";
 import type { ActionResult } from "@/types/actions";
@@ -27,9 +28,14 @@ const GitHubIcon = () => (
   
 
 export default function SignInPage() {
+  const searchParams = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
   const [result, setResult] = useState<ActionResult | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  const redirectTo = searchParams.get("redirectTo");
+  const oauthError = searchParams.get("oauthError");
+  const oauthQuery = redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : "";
 
   const errors = result && !result.success ? result.errors : {};
 
@@ -98,28 +104,30 @@ export default function SignInPage() {
 
             {/* OAuth buttons */}
             <div className="p-5 flex flex-col gap-2.5">
-              <button
+              <Link
+                href={`/api/auth/oauth/google${oauthQuery}`}
                 className="flex items-center justify-center gap-3 w-full py-2.5 rounded-xl border border-neutral-300 text-sm hover:border-neutral-500 hover:bg-white cursor-pointer"
                 style={{ color: "#333", fontFamily: "'Helvetica Neue', sans-serif", backgroundColor: "rgba(255,255,255,0.6)" }}
               >
                 <GoogleIcon />
                 Continue with Google
-              </button>
+              </Link>
 
-              <button
+              <Link
+                href={`/api/auth/oauth/github${oauthQuery}`}
                 className="flex items-center justify-center gap-3 w-full py-2.5 rounded-xl border border-neutral-300 text-sm hover:border-neutral-500 hover:bg-white cursor-pointer"
                 style={{ color: "#333", fontFamily: "'Helvetica Neue', sans-serif", backgroundColor: "rgba(255,255,255,0.6)" }}
               >
                 <GitHubIcon />
                 Continue with GitHub
-              </button>
+              </Link>
             </div>
 
             {/* Form-level error */}
-            {errors._form && (
+            {(errors._form || oauthError) && (
               <div className="mx-5 mt-5 px-3.5 py-2.5 rounded-xl border border-red-200 bg-red-50">
                 <p className="text-xs text-red-600" style={{ fontFamily: "'Helvetica Neue', sans-serif" }}>
-                  {errors._form[0]}
+                  {errors._form?.[0] ?? "OAuth sign-in failed. Please try again."}
                 </p>
               </div>
             )}

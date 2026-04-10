@@ -4,13 +4,13 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
-import { randomUUID } from "crypto";
 
 import { prisma } from "@/lib/prisma";
-import { signAccessToken, signRefreshToken, verifyRefreshToken, hashToken } from "@/lib/jwt";
-import { setAuthCookies, clearAuthCookies, getRefreshToken } from "@/lib/cookies";
+import { verifyRefreshToken, hashToken } from "@/lib/jwt";
+import { clearAuthCookies, getRefreshToken } from "@/lib/cookies";
 import { signUpSchema, signInSchema, verifyEmailSchema } from "@/lib/validations/auth";
 import { createAndSendVerificationCode, verifyCode } from "@/lib/verification";
+import { issueTokens } from "@/lib/auth-tokens";
 import type { ActionResult } from "@/types/actions";
 
 const BCRYPT_ROUNDS = 12; // ค่า cost factor — 12 เหมาะกับ production
@@ -259,29 +259,4 @@ export async function resendVerificationCodeAction(userId: string): Promise<Acti
   }
 
   return { success: true };
-}
-
-// ---------------------------------------------------------------
-// Helper: ออก access + refresh token และ set HttpOnly cookies
-// ---------------------------------------------------------------
-async function issueTokens(user: { id: string; email: string; username: string }) {
-  const jti = randomUUID();
-
-  const [accessToken, refreshToken] = await Promise.all([
-    signAccessToken({ sub: user.id, email: user.email, username: user.username }),
-    signRefreshToken({ sub: user.id, jti }),
-  ]);
-
-  // เก็บ hash ของ refresh token ใน DB
-  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 วัน
-  await prisma.refreshToken.create({
-    data: {
-      token: hashToken(refreshToken),
-      userId: user.id,
-      expiresAt,
-    },
-  });
-
-  // Set HttpOnly cookies
-  await setAuthCookies(accessToken, refreshToken);
 }
