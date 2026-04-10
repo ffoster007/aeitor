@@ -11,9 +11,8 @@ const plans = [
     tone: 'neutral',
     description: 'For small teams getting out of spreadsheets and starting with a shared renewal view.',
     features: [
-      'Track up to 10 contracts',
+      'Track up to 2 contracts',
       '30-day renewal reminders',
-      '2 team members',
       'Basic billing overview',
     ],
   },
@@ -25,9 +24,8 @@ const plans = [
     tone: 'blue',
     description: 'For teams that need earlier alerts, shared ownership, and cleaner billing decisions.',
     features: [
-      'Unlimited contracts and vendors',
+      'Track up to 50 contracts',
       '90, 60, and 30-day alerts',
-      'Owner assignment and audit trail',
       'CSV exports for finance reviews',
     ],
   },
@@ -39,9 +37,7 @@ const plans = [
     tone: 'amber',
     description: 'For larger organizations that need approvals, reporting, and stronger operating controls.',
     features: [
-      'Everything in Growth',
-      'Approval workflows',
-      'Priority onboarding support',
+      'Unlimited contracts and vendors',
       'Quarterly executive spend reports',
     ],
   },
