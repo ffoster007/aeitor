@@ -21,11 +21,25 @@ model User {
   createdAt     DateTime       @default(now()) @map("created_at")
   updatedAt     DateTime       @updatedAt @map("updated_at")
   refreshTokens RefreshToken[]
+  oauthAccounts OAuthAccount[]
   vendors       Vendor[]
   alertSettings VendorAlertSetting[]
   verificationCodes VerificationCode[]
   
   @@map("users")
+}
+
+model OAuthAccount {
+  id                String   @id @default(cuid())
+  provider          String
+  providerAccountId String   @map("provider_account_id")
+  userId            String   @map("user_id")
+  createdAt         DateTime @default(now()) @map("created_at")
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@map("oauth_accounts")
 }
 
 model VerificationCode {

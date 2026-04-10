@@ -43,6 +43,10 @@ export default function SignUpPage() {
   const confirmSuccess = confirmTouched && confirmPassword.length > 0 && passwordsMatch;
   const canSubmit = agreed && passwordsMatch && password.length >= 8 && confirmPassword.length > 0 && !isPending;
 
+  function startOAuth(provider: "google" | "github") {
+    window.location.assign(`/api/auth/oauth/${provider}`);
+  }
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setConfirmTouched(true);
@@ -128,6 +132,8 @@ export default function SignUpPage() {
                 {/* OAuth */}
                 <div className="p-5 flex flex-col gap-2.5">
                   <button
+                    type="button"
+                    onClick={() => startOAuth("google")}
                     className="flex items-center justify-center gap-3 w-full py-2.5 rounded-xl border border-neutral-300 text-sm hover:border-neutral-500 hover:bg-white cursor-pointer"
                     style={{ color: "#333", fontFamily: "'Helvetica Neue', sans-serif", backgroundColor: "rgba(255,255,255,0.6)" }}
                   >
@@ -136,6 +142,8 @@ export default function SignUpPage() {
                   </button>
 
                   <button
+                    type="button"
+                    onClick={() => startOAuth("github")}
                     className="flex items-center justify-center gap-3 w-full py-2.5 rounded-xl border border-neutral-300 text-sm hover:border-neutral-500 hover:bg-white cursor-pointer"
                     style={{ color: "#333", fontFamily: "'Helvetica Neue', sans-serif", backgroundColor: "rgba(255,255,255,0.6)" }}
                   >
