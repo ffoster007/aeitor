@@ -1,8 +1,7 @@
-"use client";
-
-import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import PricingSection from "./landing/page";
+import { getCurrentUser } from "@/lib/session";
 
 const VENDORS = [
   {
@@ -97,8 +96,8 @@ const alertDaysColor: Record<"red" | "amber" | "green", string> = {
   green: "#1a6b3c",
 };
 
-export default function LandingPage() {
-  const router = useRouter();
+export default async function LandingPage() {
+  const user = await getCurrentUser();
 
   return (
     <main
@@ -137,20 +136,32 @@ export default function LandingPage() {
         </ul>
 
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => router.push("/auth/signin")}
-            className="text-sm px-4 py-1.5 rounded-full border border-neutral-400 hover:border-neutral-700 transition-colors cursor-pointer"
-            style={{ fontFamily: "'Helvetica Neue', sans-serif", color: "#333" }}
-          >
-            Sign in
-          </button>
-          <button
-            onClick={() => router.push("/auth/signup")}
-            className="text-sm px-4 py-1.5 rounded-full text-white transition-opacity hover:opacity-80 cursor-pointer"
-            style={{ backgroundColor: "#1a1a1a", fontFamily: "'Helvetica Neue', sans-serif" }}
-          >
-            Get started →
-          </button>
+          {user ? (
+            <Link
+              href="/dashboard"
+              className="text-sm px-4 py-1.5 rounded-full text-white transition-opacity hover:opacity-80"
+              style={{ backgroundColor: "#1a1a1a", fontFamily: "'Helvetica Neue', sans-serif" }}
+            >
+              Dashboard
+            </Link>
+          ) : (
+            <>
+              <Link
+                href="/auth/signin"
+                className="text-sm px-4 py-1.5 rounded-full border border-neutral-400 hover:border-neutral-700 transition-colors"
+                style={{ fontFamily: "'Helvetica Neue', sans-serif", color: "#333" }}
+              >
+                Sign in
+              </Link>
+              <Link
+                href="/auth/signup"
+                className="text-sm px-4 py-1.5 rounded-full text-white transition-opacity hover:opacity-80"
+                style={{ backgroundColor: "#1a1a1a", fontFamily: "'Helvetica Neue', sans-serif" }}
+              >
+                Get started →
+              </Link>
+            </>
+          )}
         </div>
       </nav>
 
