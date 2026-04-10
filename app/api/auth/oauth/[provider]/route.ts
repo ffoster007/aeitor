@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { createCodeVerifier, createState, oauthClients, oauthCookieName, safeRelativeRedirect, type OAuthProvider } from "@/lib/oauth";
+import { createCodeVerifier, createOAuthClients, createState, oauthCookieName, safeRelativeRedirect, type OAuthProvider } from "@/lib/oauth";
 
 const OAUTH_COOKIE_OPTIONS = {
   httpOnly: true,
@@ -26,6 +26,7 @@ export async function GET(
 
   const state = createState();
   const redirectTo = safeRelativeRedirect(request.nextUrl.searchParams.get("redirectTo"));
+  const oauthClients = createOAuthClients(request);
 
   let authorizationUrl: URL;
   let codeVerifier: string | undefined;

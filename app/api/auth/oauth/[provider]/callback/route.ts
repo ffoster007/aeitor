@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { issueTokens } from "@/lib/auth-tokens";
 import { prisma } from "@/lib/prisma";
-import { oauthClients, oauthCookieName, safeRelativeRedirect, createUsernameSeed, type OAuthProvider } from "@/lib/oauth";
+import { createOAuthClients, oauthCookieName, safeRelativeRedirect, createUsernameSeed, type OAuthProvider } from "@/lib/oauth";
 
 const BCRYPT_ROUNDS = 12;
 
@@ -201,6 +201,7 @@ export async function GET(
 
   try {
     let account: { providerAccountId: string; email: string; usernameSeed: string };
+    const oauthClients = createOAuthClients(request);
 
     if (provider === "google") {
       const codeVerifier = request.cookies.get(oauthCookieName(provider, "verifier"))?.value;

@@ -4,33 +4,60 @@ import { GitHub, Google } from "arctic";
 
 export type OAuthProvider = "google" | "github";
 
-const appUrl = process.env.NEXT_PUBLIC_APP_URL;
-const googleClientId = process.env.GOOGLE_ID;
-const googleClientSecret = process.env.GOOGLE_SECRET;
-const githubClientId = process.env.GITHUB_ID;
-const githubClientSecret = process.env.GITHUB_SECRET;
+function requireEnv(name: string) {
+  const value = process.env[name];
 
-if (!appUrl) {
-  throw new Error("NEXT_PUBLIC_APP_URL environment variable is not set.");
+  if (!value) {
+    throw new Error(`${name} environment variable is not set.`);
+  }
+
+  return value;
 }
 
-if (!googleClientId || !googleClientSecret) {
-  throw new Error("Google OAuth env vars are not set. Expected GOOGLE_ID and GOOGLE_SECRET.");
+const googleClientId = requireEnv("GOOGLE_ID");
+const googleClientSecret = requireEnv("GOOGLE_SECRET");
+const githubClientId = requireEnv("GITHUB_ID");
+const githubClientSecret = requireEnv("GITHUB_SECRET");
+
+function trimTrailingSlash(value: string) {
+  return value.endsWith("/") ? value.slice(0, -1) : value;
 }
 
-if (!githubClientId || !githubClientSecret) {
-  throw new Error("GitHub OAuth env vars are not set. Expected GITHUB_ID and GITHUB_SECRET.");
+function getForwardedOrigin(request: Request) {
+  const forwardedProto = request.headers.get("x-forwarded-proto");
+  const forwardedHost = request.headers.get("x-forwarded-host");
+
+  if (forwardedProto && forwardedHost) {
+    return `${forwardedProto}://${forwardedHost}`;
+  }
+
+  return null;
 }
 
-const CALLBACKS = {
-  google: `${appUrl}/api/auth/oauth/google/callback`,
-  github: `${appUrl}/api/auth/oauth/github/callback`,
-} as const;
+export function getAppOrigin(request: Request) {
+  const forwardedOrigin = getForwardedOrigin(request);
+  if (forwardedOrigin) {
+    return trimTrailingSlash(forwardedOrigin);
+  }
 
-export const oauthClients = {
-  google: new Google(googleClientId, googleClientSecret, CALLBACKS.google),
-  github: new GitHub(githubClientId, githubClientSecret, CALLBACKS.github),
-} as const;
+  const configuredOrigin = process.env.APP_URL ?? process.env.NEXT_PUBLIC_APP_URL;
+  if (configuredOrigin) {
+    return trimTrailingSlash(configuredOrigin);
+  }
+
+  return trimTrailingSlash(new URL(request.url).origin);
+}
+
+export function getOAuthCallbackUrl(provider: OAuthProvider, request: Request) {
+  return `${getAppOrigin(request)}/api/auth/oauth/${provider}/callback`;
+}
+
+export function createOAuthClients(request: Request) {
+  return {
+    google: new Google(googleClientId, googleClientSecret, getOAuthCallbackUrl("google", request)),
+    github: new GitHub(githubClientId, githubClientSecret, getOAuthCallbackUrl("github", request)),
+  } as const;
+}
 
 export function createState() {
   return randomBytes(32).toString("base64url");
