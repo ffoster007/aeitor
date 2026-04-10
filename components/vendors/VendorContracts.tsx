@@ -3,7 +3,7 @@
 import React, { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { format, differenceInDays } from "date-fns";
-import { Plus, AlertTriangle, Upload, Calendar, DollarSign, List } from "lucide-react";
+import { Plus, AlertTriangle, Upload, Download, Calendar, DollarSign, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -346,6 +346,13 @@ export default function VendorContracts({ vendors: initialVendors }: Props) {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-lg font-semibold text-white">Vendor contracts</h1>
         <div className="flex items-center gap-2">
+          <a
+            href="/api/vendors/export"
+            className="inline-flex items-center gap-1.5 h-9 rounded-md px-3 text-sm border border-[#383838] bg-transparent hover:bg-[#383838] text-gray-300 hover:text-white transition-colors"
+          >
+            <Download size={14} />
+            Export CSV
+          </a>
           <label className="cursor-pointer">
             <input
               type="file"
