@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { BILLING_PLANS, type BillingPlanId } from "@/lib/billing/plans";
@@ -12,7 +12,7 @@ interface Props {
   billing: BillingState;
 }
 
-export default function BillingPlans({ billing }: Props) {
+function BillingPlansContent({ billing }: Props) {
   const searchParams = useSearchParams();
   const [pendingPlan, setPendingPlan] = useState<PaidPlan | null>(null);
   const [portalPending, setPortalPending] = useState(false);
@@ -90,7 +90,7 @@ export default function BillingPlans({ billing }: Props) {
             type="button"
             onClick={openPortal}
             disabled={portalPending || pendingPlan !== null}
-            className="rounded-full border border-[#4a4a4a] px-4 py-2 text-sm text-[#f3efe8] hover:bg-[#2b2b2b] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="rounded-full border border-[#4a4a4a] px-4 py-2 text-sm text-[#f3efe8] hover:bg-[#2b2b2b] transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             {portalPending ? "Opening portal..." : "Manage subscription"}
           </button>
@@ -220,5 +220,13 @@ export default function BillingPlans({ billing }: Props) {
         })}
       </section>
     </>
+  );
+}
+
+export default function BillingPlans(props: Props) {
+  return (
+    <Suspense fallback={null}>
+      <BillingPlansContent {...props} />
+    </Suspense>
   );
 }

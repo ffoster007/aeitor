@@ -41,9 +41,19 @@ function extractPlanFromSubscription(subscription: Stripe.Subscription): Billing
   return getPlanByPriceId(priceId) ?? "FREE";
 }
 
+function extractPeriodDates(subscription: Stripe.Subscription) {
+  const currentItem = subscription.items.data[0];
+
+  return {
+    currentPeriodStart: currentItem ? new Date(currentItem.current_period_start * 1000) : null,
+    currentPeriodEnd: currentItem ? new Date(currentItem.current_period_end * 1000) : null,
+  };
+}
+
 export async function syncSubscriptionFromStripe(subscription: Stripe.Subscription, userIdHint?: string) {
   const plan = extractPlanFromSubscription(subscription);
   const status = mapStripeStatus(subscription.status);
+  const { currentPeriodStart, currentPeriodEnd } = extractPeriodDates(subscription);
   const stripeCustomerId = typeof subscription.customer === "string"
     ? subscription.customer
     : subscription.customer.id;
@@ -68,8 +78,8 @@ export async function syncSubscriptionFromStripe(subscription: Stripe.Subscripti
       stripeSubscriptionId: subscription.id,
       plan,
       status,
-      currentPeriodStart: new Date(subscription.current_period_start * 1000),
-      currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+      currentPeriodStart,
+      currentPeriodEnd,
       cancelAtPeriodEnd: subscription.cancel_at_period_end,
     },
     update: {
@@ -77,8 +87,8 @@ export async function syncSubscriptionFromStripe(subscription: Stripe.Subscripti
       stripeSubscriptionId: subscription.id,
       plan,
       status,
-      currentPeriodStart: new Date(subscription.current_period_start * 1000),
-      currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+      currentPeriodStart,
+      currentPeriodEnd,
       cancelAtPeriodEnd: subscription.cancel_at_period_end,
     },
   });
