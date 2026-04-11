@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
+import { getBillingStateForUser } from "@/lib/billing/entitlements";
 
 function escapeCsvValue(value: string | number): string {
   const normalized = String(value).replace(/"/g, '""');
@@ -17,6 +18,14 @@ export async function GET() {
     user = await requireUser();
   } catch {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const billing = await getBillingStateForUser(user.sub);
+  if (!billing.csvExport) {
+    return Response.json(
+      { error: "CSV export is available on Growth and Scale plans." },
+      { status: 403 },
+    );
   }
 
   const vendors = await prisma.vendor.findMany({

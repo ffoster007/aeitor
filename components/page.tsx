@@ -5,6 +5,7 @@ import ActivityBar, { type ActivityTabId } from '../components/activitybar/page'
 import HowToPage from './howto/page';
 import Toolbar from './toolbar/page';
 import VendorContracts from './vendors/VendorContracts';
+import type { BillingState } from '@/lib/billing/entitlements';
 
 interface Vendor {
   id: string;
@@ -14,9 +15,9 @@ interface Vendor {
   monthlyCost: number;
 }
 
-type PageProps = ToolbarProps & { vendors: Vendor[] };
+type PageProps = ToolbarProps & { vendors: Vendor[]; billing: BillingState };
 
-export default function Page({ user, vendors }: PageProps) {
+export default function Page({ user, vendors, billing }: PageProps) {
   const [activeTab, setActiveTab] = useState<ActivityTabId>('Home');
 
   return (
@@ -26,7 +27,7 @@ export default function Page({ user, vendors }: PageProps) {
         <ActivityBar activeTab={activeTab} onTabSelect={setActiveTab} />
         <div className="flex-1 bg-[#1a1a1a] overflow-hidden">
           {activeTab === 'Home' && <HowToPage />}
-          {activeTab === 'Workspace' && <VendorContracts vendors={vendors} />}
+          {activeTab === 'Workspace' && <VendorContracts vendors={vendors} billing={billing} />}
         </div>
       </div>
     </div>

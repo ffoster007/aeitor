@@ -2,6 +2,7 @@ import React from 'react'
 import ComponentsPage from '@/components/page'
 import { getCurrentUser } from '@/lib/session'
 import { prisma } from '@/lib/prisma'
+import { getBillingStateForUser } from '@/lib/billing/entitlements'
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
@@ -17,5 +18,17 @@ export default async function DashboardPage() {
     ...v,
     monthlyCost: v.monthlyCost.toNumber(),
   }));
-  return <ComponentsPage user={user} vendors={vendors} />
+  const billing = user
+    ? await getBillingStateForUser(user.sub)
+    : {
+        plan: 'FREE' as const,
+        vendorLimit: 2,
+        csvExport: false,
+        isPaid: false,
+        status: 'CANCELED',
+        cancelAtPeriodEnd: false,
+        currentPeriodEnd: null,
+      };
+
+  return <ComponentsPage user={user} vendors={vendors} billing={billing} />
 }

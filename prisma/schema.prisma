@@ -25,8 +25,45 @@ model User {
   vendors       Vendor[]
   alertSettings VendorAlertSetting[]
   verificationCodes VerificationCode[]
+  subscription  Subscription?
   
   @@map("users")
+}
+
+enum BillingPlan {
+  FREE
+  GROWTH
+  SCALE
+}
+
+enum BillingStatus {
+  ACTIVE
+  TRIALING
+  PAST_DUE
+  CANCELED
+  INCOMPLETE
+  INCOMPLETE_EXPIRED
+  UNPAID
+  PAUSED
+}
+
+model Subscription {
+  id                   String        @id @default(cuid())
+  userId               String        @unique @map("user_id")
+  plan                 BillingPlan   @default(FREE)
+  status               BillingStatus @default(CANCELED)
+  stripeCustomerId     String?       @unique @map("stripe_customer_id")
+  stripeSubscriptionId String?       @unique @map("stripe_subscription_id")
+  currentPeriodStart   DateTime?     @map("current_period_start")
+  currentPeriodEnd     DateTime?     @map("current_period_end")
+  cancelAtPeriodEnd    Boolean       @default(false) @map("cancel_at_period_end")
+  createdAt            DateTime      @default(now()) @map("created_at")
+  updatedAt            DateTime      @updatedAt @map("updated_at")
+  user                 User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([plan])
+  @@index([status])
+  @@map("subscriptions")
 }
 
 model OAuthAccount {

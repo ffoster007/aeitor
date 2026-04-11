@@ -12,12 +12,14 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { createVendor, updateVendor, deleteVendor, importVendorsCSV, type VendorFormData } from "@/actions/vendor";
+import type { BillingState } from "@/lib/billing/entitlements";
+
+type PaidPlan = "GROWTH" | "SCALE";
 
 interface Vendor {
   id: string;
@@ -29,6 +31,7 @@ interface Vendor {
 
 interface Props {
   vendors: Vendor[];
+  billing: BillingState;
 }
 
 type Status = "safe" | "warning" | "critical";
@@ -277,19 +280,77 @@ function parseCsv(text: string): VendorFormData[] {
   });
 }
 
+function UpgradePlanDialog({
+  open,
+  onOpenChange,
+  reason,
+  loadingPlan,
+  onChoosePlan,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  reason: string;
+  loadingPlan: PaidPlan | null;
+  onChoosePlan: (plan: PaidPlan) => void;
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Upgrade to Team plan</DialogTitle>
+          <DialogDescription>
+            {reason}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-3">
+          <button
+            type="button"
+            className="w-full text-left rounded-lg border border-[#3a3a3a] bg-[#1f1f1f] p-4 hover:border-[#4b4b4b] transition-colors"
+            onClick={() => onChoosePlan("GROWTH")}
+            disabled={loadingPlan !== null}
+          >
+            <p className="text-sm font-medium text-white">Growth - $10/user/month</p>
+            <p className="text-xs text-gray-400 mt-1">Track up to 50 contracts and unlock CSV exports.</p>
+          </button>
+
+          <button
+            type="button"
+            className="w-full text-left rounded-lg border border-[#3a3a3a] bg-[#1f1f1f] p-4 hover:border-[#4b4b4b] transition-colors"
+            onClick={() => onChoosePlan("SCALE")}
+            disabled={loadingPlan !== null}
+          >
+            <p className="text-sm font-medium text-white">Scale - $20/user/month</p>
+            <p className="text-xs text-gray-400 mt-1">Everything in Growth plus unlimited vendors.</p>
+          </button>
+        </div>
+
+        {loadingPlan && (
+          <p className="text-xs text-gray-400">Redirecting to Stripe checkout...</p>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // ─── Main component ──────────────────────────────────────────────────────────────
-export default function VendorContracts({ vendors: initialVendors }: Props) {
+export default function VendorContracts({ vendors: initialVendors, billing }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [view, setView] = useState<View>("list");
   const [addOpen, setAddOpen] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [editVendor, setEditVendor] = useState<Vendor | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [checkoutPlan, setCheckoutPlan] = useState<PaidPlan | null>(null);
 
   const vendors = initialVendors;
 
   const today = new Date();
   const totalMonthly = vendors.reduce((s, v) => s + getMonthlyCost(v), 0);
+  const canAddVendor = billing.vendorLimit === null || vendors.length < billing.vendorLimit;
+  const canExportCsv = billing.csvExport;
   const renewingIn30 = vendors.filter(
     (v) => differenceInDays(v.endDate, today) <= 30 && differenceInDays(v.endDate, today) >= 0,
   ).length;
@@ -299,28 +360,82 @@ export default function VendorContracts({ vendors: initialVendors }: Props) {
     router.refresh();
   }
 
+  async function startCheckout(plan: PaidPlan) {
+    setCheckoutPlan(plan);
+    setActionError(null);
+
+    try {
+      const res = await fetch("/api/billing/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan }),
+      });
+
+      const payload = await res.json().catch(() => null) as { url?: string; error?: string } | null;
+      if (!res.ok || !payload?.url) {
+        throw new Error(payload?.error || "Unable to start checkout session");
+      }
+
+      window.location.href = payload.url;
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "Unable to start checkout session");
+      setCheckoutPlan(null);
+    }
+  }
+
+  function handleOpenAddDialog() {
+    setActionError(null);
+
+    if (!canAddVendor) {
+      setUpgradeOpen(true);
+      return;
+    }
+
+    setAddOpen(true);
+  }
+
   async function handleCreate(data: VendorFormData) {
     startTransition(async () => {
-      await createVendor(data);
-      setAddOpen(false);
-      refresh();
+      try {
+        setActionError(null);
+        await createVendor(data);
+        setAddOpen(false);
+        refresh();
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Failed to create vendor";
+        setActionError(message);
+        if (message.toLowerCase().includes("plan limit")) {
+          setAddOpen(false);
+          setUpgradeOpen(true);
+        }
+      }
     });
   }
 
   async function handleUpdate(data: VendorFormData) {
     if (!editVendor) return;
     startTransition(async () => {
-      await updateVendor(editVendor.id, data);
-      setEditVendor(null);
-      refresh();
+      try {
+        setActionError(null);
+        await updateVendor(editVendor.id, data);
+        setEditVendor(null);
+        refresh();
+      } catch (err) {
+        setActionError(err instanceof Error ? err.message : "Failed to update vendor");
+      }
     });
   }
 
   async function handleDelete(id: string) {
     startTransition(async () => {
-      await deleteVendor(id);
-      setDeleteId(null);
-      refresh();
+      try {
+        setActionError(null);
+        await deleteVendor(id);
+        setDeleteId(null);
+        refresh();
+      } catch (err) {
+        setActionError(err instanceof Error ? err.message : "Failed to delete vendor");
+      }
     });
   }
 
@@ -332,8 +447,17 @@ export default function VendorContracts({ vendors: initialVendors }: Props) {
       const rows = parseCsv(ev.target?.result as string);
       if (rows.length === 0) return alert("No valid rows found in CSV");
       startTransition(async () => {
-        await importVendorsCSV(rows);
-        refresh();
+        try {
+          setActionError(null);
+          await importVendorsCSV(rows);
+          refresh();
+        } catch (err) {
+          const message = err instanceof Error ? err.message : "Failed to import CSV";
+          setActionError(message);
+          if (message.toLowerCase().includes("plan limit")) {
+            setUpgradeOpen(true);
+          }
+        }
       });
     };
     reader.readAsText(file);
@@ -344,15 +468,32 @@ export default function VendorContracts({ vendors: initialVendors }: Props) {
     <div className="p-6 h-full overflow-y-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-lg font-semibold text-white">Vendor contracts</h1>
+        <div>
+          <h1 className="text-lg font-semibold text-white">Vendor contracts</h1>
+          <p className="text-xs text-gray-500 mt-1">
+            Plan: {billing.plan}
+            {billing.vendorLimit === null ? " - unlimited vendors" : ` - ${vendors.length}/${billing.vendorLimit} vendors used`}
+          </p>
+        </div>
         <div className="flex items-center gap-2">
-          <a
-            href="/api/vendors/export"
-            className="inline-flex items-center gap-1.5 h-9 rounded-md px-3 text-sm border border-[#383838] bg-transparent hover:bg-[#383838] text-gray-300 hover:text-white transition-colors"
-          >
-            <Download size={14} />
-            Export CSV
-          </a>
+          {canExportCsv ? (
+            <a
+              href="/api/vendors/export"
+              className="inline-flex items-center gap-1.5 h-9 rounded-md px-3 text-sm border border-[#383838] bg-transparent hover:bg-[#383838] text-gray-300 hover:text-white transition-colors"
+            >
+              <Download size={14} />
+              Export CSV
+            </a>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setUpgradeOpen(true)}
+              className="inline-flex items-center gap-1.5 h-9 rounded-md px-3 text-sm border border-[#383838] bg-transparent hover:bg-[#383838] text-gray-300 hover:text-white transition-colors cursor-pointer"
+            >
+              <Download size={14} />
+              Export CSV (Upgrade)
+            </button>
+          )}
           <label className="cursor-pointer">
             <input
               type="file"
@@ -366,12 +507,10 @@ export default function VendorContracts({ vendors: initialVendors }: Props) {
             </span>
           </label>
           <Dialog open={addOpen} onOpenChange={setAddOpen}>
-            <DialogTrigger asChild>
-              <Button size="sm">
-                <Plus size={14} />
-                Add vendor
-              </Button>
-            </DialogTrigger>
+            <Button size="sm" type="button" onClick={handleOpenAddDialog}>
+              <Plus size={14} />
+              Add vendor
+            </Button>
             <DialogContent className="max-w-md">
               <DialogHeader>
                 <DialogTitle>Add vendor</DialogTitle>
@@ -387,6 +526,12 @@ export default function VendorContracts({ vendors: initialVendors }: Props) {
           </Dialog>
         </div>
       </div>
+
+      {actionError && (
+        <div className="mb-4 rounded-lg border border-red-900/40 bg-red-950/30 px-4 py-3 text-sm text-red-300">
+          {actionError}
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3 mb-6">
@@ -518,6 +663,18 @@ export default function VendorContracts({ vendors: initialVendors }: Props) {
 
       {view === "calendar" && <CalendarView vendors={vendors} />}
       {view === "spend" && <SpendView vendors={vendors} />}
+
+      <UpgradePlanDialog
+        open={upgradeOpen}
+        onOpenChange={setUpgradeOpen}
+        reason={
+          canAddVendor
+            ? "This feature is available on Growth and Scale plans."
+            : "Free Tier supports only 2 vendors. Upgrade to add more vendors."
+        }
+        loadingPlan={checkoutPlan}
+        onChoosePlan={startCheckout}
+      />
 
       {/* Edit dialog */}
       <Dialog open={!!editVendor} onOpenChange={(o) => !o && setEditVendor(null)}>

@@ -1,7 +1,7 @@
 // app/signin/page.tsx
 "use client";
 
-import { useState, useTransition } from "react";
+import { Suspense, useState, useTransition } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
@@ -27,7 +27,7 @@ const GitHubIcon = () => (
 );
   
 
-export default function SignInPage() {
+function SignInPageContent() {
   const searchParams = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
   const [result, setResult] = useState<ActionResult | null>(null);
@@ -216,5 +216,13 @@ export default function SignInPage() {
         </div>
       </section>
     </main>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={null}>
+      <SignInPageContent />
+    </Suspense>
   );
 }

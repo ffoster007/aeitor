@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
+import { assertCanCreateVendors, getBillingStateForUser } from "@/lib/billing/entitlements";
 import { revalidatePath } from "next/cache";
 
 export interface VendorFormData {
@@ -21,6 +22,8 @@ export async function getVendors() {
 
 export async function createVendor(data: VendorFormData) {
   const user = await requireUser();
+
+  await assertCanCreateVendors(user.sub, 1);
 
   await prisma.vendor.create({
     data: {
@@ -87,8 +90,17 @@ export async function importVendorsCSV(rows: VendorFormData[]) {
       userId: user.sub,
     }));
 
+  if (data.length > 0) {
+    await assertCanCreateVendors(user.sub, data.length);
+  }
+
   await prisma.vendor.createMany({ data });
   revalidatePath("/dashboard");
+}
+
+export async function getBillingState() {
+  const user = await requireUser();
+  return getBillingStateForUser(user.sub);
 }
 
 export async function getAlertSettings() {

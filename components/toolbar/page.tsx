@@ -3,6 +3,7 @@
 // Client Component — รับข้อมูล user จาก props
 
 import Image from "next/image";
+import Link from "next/link";
 import Avatar from "./avatar";
 
 export type ToolbarUser = {
@@ -29,19 +30,19 @@ export default function Toolbar({ user }: ToolbarProps = {}) {
   return (
     <header className="h-10 bg-[#161616] border-b border-[#2b2b2c] flex items-center text-white text-xs px-2 w-full flex-none sticky top-0 z-40">
       {/* Left — Logo */}
-      <div className="flex items-center h-full">
-        <div className="flex items-center px-1.5 h-full space-x-2">
-          <Image
-            src="/aeitor.png"
-            alt="AEITOR Logo"
-            width={20}
-            height={20}
-            priority
-            className="mr-2"
-          />
-          <span className="text-[#2d2f36]">/</span>
+        <div className="flex items-center h-full">
+            <Link href="/dashboard" className="flex items-center px-1.5 h-full space-x-2">
+                <Image
+                src="/aeitor.png"
+                alt="AEITOR Logo"
+                width={20}
+                height={20}
+                priority
+                className="mr-2"
+                />
+                <span className="text-[#2d2f36]">/</span>
+            </Link>
         </div>
-      </div>
 
       {/* Center — ว่างไว้ขยาย */}
       <div className="flex-1" />
