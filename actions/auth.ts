@@ -260,3 +260,68 @@ export async function resendVerificationCodeAction(userId: string): Promise<Acti
 
   return { success: true };
 }
+
+// ---------------------------------------------------------------
+// CHANGE PASSWORD
+// ---------------------------------------------------------------
+export async function changePasswordAction(
+  userId: string,
+  formData: FormData,
+): Promise<ActionResult> {
+  const currentPassword = formData.get("currentPassword");
+  const newPassword = formData.get("newPassword");
+  const confirmPassword = formData.get("confirmPassword");
+
+  if (
+    typeof currentPassword !== "string" ||
+    typeof newPassword !== "string" ||
+    typeof confirmPassword !== "string"
+  ) {
+    return { success: false, errors: { _form: ["ข้อมูลไม่ถูกต้อง"] } };
+  }
+
+  // Validate new password strength
+  const passwordSchema = signUpSchema.shape.password;
+  const passwordResult = passwordSchema.safeParse(newPassword);
+  if (!passwordResult.success) {
+    return {
+      success: false,
+      errors: { newPassword: passwordResult.error.flatten().formErrors },
+    };
+  }
+
+  if (newPassword !== confirmPassword) {
+    return { success: false, errors: { confirmPassword: ["รหัสผ่านใหม่ไม่ตรงกัน"] } };
+  }
+
+  // Fetch user — only users with a password hash can change it
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { password: true },
+  });
+
+  if (!user) {
+    return { success: false, errors: { _form: ["ไม่พบผู้ใช้"] } };
+  }
+
+  const isValid = await bcrypt.compare(currentPassword, user.password);
+  if (!isValid) {
+    return { success: false, errors: { currentPassword: ["รหัสผ่านปัจจุบันไม่ถูกต้อง"] } };
+  }
+
+  if (currentPassword === newPassword) {
+    return {
+      success: false,
+      errors: { newPassword: ["รหัสผ่านใหม่ต้องไม่ซ้ำกับรหัสผ่านเดิม"] },
+    };
+  }
+
+  const hashedPassword = await bcrypt.hash(newPassword, BCRYPT_ROUNDS);
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { password: hashedPassword },
+  });
+
+  return { success: true };
+}
