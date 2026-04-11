@@ -16,10 +16,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
+import { UpgradePlanDialog, type PaidPlan } from "@/components/vendors/upgrade";
 import { createVendor, updateVendor, deleteVendor, importVendorsCSV, type VendorFormData } from "@/actions/vendor";
 import type { BillingState } from "@/lib/billing/entitlements";
-
-type PaidPlan = "GROWTH" | "SCALE";
 
 interface Vendor {
   id: string;
@@ -278,59 +277,6 @@ function parseCsv(text: string): VendorFormData[] {
       },
     ];
   });
-}
-
-function UpgradePlanDialog({
-  open,
-  onOpenChange,
-  reason,
-  loadingPlan,
-  onChoosePlan,
-}: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  reason: string;
-  loadingPlan: PaidPlan | null;
-  onChoosePlan: (plan: PaidPlan) => void;
-}) {
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>Upgrade to Team plan</DialogTitle>
-          <DialogDescription>
-            {reason}
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="space-y-3">
-          <button
-            type="button"
-            className="w-full text-left rounded-lg border border-[#3a3a3a] bg-[#1f1f1f] p-4 hover:border-[#4b4b4b] transition-colors"
-            onClick={() => onChoosePlan("GROWTH")}
-            disabled={loadingPlan !== null}
-          >
-            <p className="text-sm font-medium text-white">Growth - $10/user/month</p>
-            <p className="text-xs text-gray-400 mt-1">Track up to 50 contracts and unlock CSV exports.</p>
-          </button>
-
-          <button
-            type="button"
-            className="w-full text-left rounded-lg border border-[#3a3a3a] bg-[#1f1f1f] p-4 hover:border-[#4b4b4b] transition-colors"
-            onClick={() => onChoosePlan("SCALE")}
-            disabled={loadingPlan !== null}
-          >
-            <p className="text-sm font-medium text-white">Scale - $20/user/month</p>
-            <p className="text-xs text-gray-400 mt-1">Everything in Growth plus unlimited vendors.</p>
-          </button>
-        </div>
-
-        {loadingPlan && (
-          <p className="text-xs text-gray-400">Redirecting to Stripe checkout...</p>
-        )}
-      </DialogContent>
-    </Dialog>
-  );
 }
 
 // ─── Main component ──────────────────────────────────────────────────────────────
