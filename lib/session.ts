@@ -3,6 +3,7 @@
 
 import { verifyAccessToken, type AccessTokenPayload } from "./jwt";
 import { getAccessToken } from "./cookies";
+import { prisma } from "./prisma";
 
 export async function getCurrentUser(): Promise<AccessTokenPayload | null> {
   try {
@@ -23,5 +24,15 @@ export async function requireUser(): Promise<AccessTokenPayload> {
     // throw เพื่อให้ error boundary หรือ caller จัดการ
     throw new Error("Unauthorized");
   }
+
+  const activeUser = await prisma.user.findUnique({
+    where: { id: user.sub },
+    select: { id: true, deletedAt: true },
+  });
+
+  if (!activeUser || activeUser.deletedAt) {
+    throw new Error("Unauthorized");
+  }
+
   return user;
 }

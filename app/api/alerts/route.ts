@@ -15,6 +15,7 @@ export async function POST(req: Request) {
 
   // Fetch all users with their vendors and alert settings
   const users = await prisma.user.findMany({
+    where: { deletedAt: null },
     include: {
       vendors: { include: { sentAlerts: true } },
       alertSettings: true,
