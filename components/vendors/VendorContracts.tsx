@@ -302,6 +302,7 @@ export default function VendorContracts({ vendors: initialVendors, billing }: Pr
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [checkoutPlan, setCheckoutPlan] = useState<PaidPlan | null>(null);
+  const [selectedCriticalVendor, setSelectedCriticalVendor] = useState<Vendor | null>(null);
 
   const vendors = initialVendors;
 
@@ -423,7 +424,7 @@ export default function VendorContracts({ vendors: initialVendors, billing }: Pr
   }
 
   return (
-    <div className="p-6 h-full overflow-y-auto text-[var(--text-primary)]">
+    <div className="p-6 h-full min-h-0 overflow-hidden text-[var(--text-primary)] flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -537,92 +538,116 @@ export default function VendorContracts({ vendors: initialVendors, billing }: Pr
         })}
       </div>
 
+      <div className="flex-1 min-h-0">
       {view === "list" && (
-        <div>
+        <div className="min-h-0 h-full flex flex-col">
           {/* Critical alerts */}
-          {criticalVendors.map((v) => {
-            const days = differenceInDays(v.endDate, today);
-            const noticeDeadline = new Date(v.endDate);
-            noticeDeadline.setDate(noticeDeadline.getDate() - v.noticePeriod);
-            const pastNotice = today >= noticeDeadline;
-            return (
-              <div
-                key={v.id}
-                className="flex items-start gap-3 rounded-lg px-4 py-3 mb-3 bg-[var(--warning-bg)] border border-[var(--warning-border)]"
-              >
-                <AlertTriangle size={16} className="text-[var(--warning-text)] mt-0.5 shrink-0" />
-                <div className="text-sm">
-                  <p className="text-[var(--text-primary)] font-medium">
-                    {v.name} renews in {days} day{days !== 1 ? "s" : ""}
-                  </p>
-                  <p className="text-[var(--warning-text)] text-xs mt-0.5">
-                    Notice period ends {format(noticeDeadline, "MMM d")}
-                    {pastNotice ? " — action needed now" : ""}
-                  </p>
-                </div>
+          {criticalVendors.length > 0 && (
+            <div className="mb-4 rounded-lg border border-[var(--warning-border)] bg-[var(--warning-bg)] p-3">
+              <div className="mb-2 flex items-center justify-between">
+                <p className="text-sm font-medium text-[var(--text-primary)]">Critical renewals</p>
+                <Badge variant="warning">{criticalVendors.length}</Badge>
               </div>
-            );
-          })}
+              <div className="max-h-44 overflow-y-auto pr-1 space-y-2">
+                {criticalVendors.map((v) => {
+                  const days = differenceInDays(v.endDate, today);
+
+                  return (
+                    <button
+                      key={v.id}
+                      type="button"
+                        onClick={() => setSelectedCriticalVendor(v)}
+                      className="w-full rounded-md border border-[var(--warning-border)] bg-[var(--surface-1)] px-3 py-2 text-left cursor-pointer "
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <AlertTriangle size={14} className="text-[var(--warning-text)] shrink-0" />
+                          <p className="truncate text-sm text-[var(--text-primary)]">
+                            {v.name}
+                          </p>
+                        </div>
+                        <p className="text-xs font-medium text-[var(--warning-text)] shrink-0">
+                          {days}d
+                        </p>
+                      </div>
+                      <p className="mt-1 text-xs text-[var(--text-muted)]">Click to view details</p>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Table */}
           {vendors.length === 0 ? (
-            <div className="text-center py-16 text-[var(--text-muted)]">
+            <div className="text-center py-16 text-[var(--text-muted)] flex-1">
               <p className="text-sm">No vendors yet. Add your first vendor or import a CSV.</p>
             </div>
           ) : (
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-[var(--text-muted)] border-b border-[var(--border)]">
-                  <th className="text-left pb-2 font-normal">Vendor</th>
-                  <th className="text-left pb-2 font-normal">Renewal</th>
-                  <th className="text-left pb-2 font-normal">Cost/mo</th>
-                  <th className="text-left pb-2 font-normal">Status</th>
-                  <th className="text-right pb-2 font-normal">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {vendors.map((v) => {
-                  const status = getStatus(v.endDate);
-                  return (
-                    <tr
-                      key={v.id}
-                      className="border-b border-[var(--border)] hover:bg-[var(--surface-2)] transition-colors"
-                    >
-                      <td className="py-3 font-medium text-[var(--text-primary)]">{v.name}</td>
-                      <td className="py-3 text-[var(--text-secondary)]">{format(v.endDate, "MMM d")}</td>
-                      <td className="py-3 text-[var(--text-secondary)]">
-                        ${getMonthlyCost(v).toLocaleString()}
-                      </td>
-                      <td className="py-3">
-                        <Badge variant={status}>{STATUS_LABEL[status]}</Badge>
-                      </td>
-                      <td className="py-3 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <button
-                            onClick={() => setEditVendor(v)}
-                            className="text-xs text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors cursor-pointer"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => setDeleteId(v.id)}
-                            className="text-xs text-[var(--destructive)] hover:opacity-80 transition-colors cursor-pointer"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+            <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border border-[var(--border)]">
+              <table className="w-full text-sm">
+                <thead className="sticky top-0 bg-[var(--surface-1)] z-10">
+                  <tr className="text-[var(--text-muted)] border-b border-[var(--border)]">
+                    <th className="text-left px-3 py-2 font-normal">Vendor</th>
+                    <th className="text-left px-3 py-2 font-normal">Renewal</th>
+                    <th className="text-left px-3 py-2 font-normal">Cost/mo</th>
+                    <th className="text-left px-3 py-2 font-normal">Status</th>
+                    <th className="text-right px-3 py-2 font-normal">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {vendors.map((v) => {
+                    const status = getStatus(v.endDate);
+                    return (
+                      <tr
+                        key={v.id}
+                        className="border-b border-[var(--border)] hover:bg-[var(--surface-2)] transition-colors"
+                      >
+                        <td className="px-3 py-3 font-medium text-[var(--text-primary)]">{v.name}</td>
+                        <td className="px-3 py-3 text-[var(--text-secondary)]">{format(v.endDate, "MMM d")}</td>
+                        <td className="px-3 py-3 text-[var(--text-secondary)]">
+                          ${getMonthlyCost(v).toLocaleString()}
+                        </td>
+                        <td className="px-3 py-3">
+                          <Badge variant={status}>{STATUS_LABEL[status]}</Badge>
+                        </td>
+                        <td className="px-3 py-3 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              onClick={() => setEditVendor(v)}
+                              className="text-xs text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors cursor-pointer"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => setDeleteId(v.id)}
+                              className="text-xs text-[var(--destructive)] hover:opacity-80 transition-colors cursor-pointer"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       )}
 
-      {view === "calendar" && <CalendarView vendors={vendors} />}
-      {view === "spend" && <SpendView vendors={vendors} />}
+      {view === "calendar" && (
+        <div className="h-full overflow-y-auto pr-1">
+          <CalendarView vendors={vendors} />
+        </div>
+      )}
+      {view === "spend" && (
+        <div className="h-full overflow-y-auto pr-1">
+          <SpendView vendors={vendors} />
+        </div>
+      )}
+      </div>
 
       <UpgradePlanDialog
         open={upgradeOpen}
@@ -635,6 +660,50 @@ export default function VendorContracts({ vendors: initialVendors, billing }: Pr
         loadingPlan={checkoutPlan}
         onChoosePlan={startCheckout}
       />
+
+      <Dialog open={!!selectedCriticalVendor} onOpenChange={(open) => !open && setSelectedCriticalVendor(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Critical renewal</DialogTitle>
+            <DialogDescription>
+              {selectedCriticalVendor?.name}
+            </DialogDescription>
+          </DialogHeader>
+          {selectedCriticalVendor && (() => {
+            const days = differenceInDays(selectedCriticalVendor.endDate, today);
+            const noticeDeadline = new Date(selectedCriticalVendor.endDate);
+            noticeDeadline.setDate(noticeDeadline.getDate() - selectedCriticalVendor.noticePeriod);
+            const pastNotice = today >= noticeDeadline;
+
+            return (
+              <div className="space-y-3 text-sm text-[var(--text-secondary)]">
+                <div className="rounded-lg border border-[var(--warning-border)] bg-[var(--warning-bg)] px-4 py-3">
+                  <p className="font-medium text-[var(--text-primary)]">
+                    Renews in {days} day{days !== 1 ? "s" : ""}
+                  </p>
+                  <p className="mt-1 text-xs text-[var(--warning-text)]">
+                    {pastNotice ? "Notice window already started." : "Notice window is approaching."}
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <p>Renewal date: {format(selectedCriticalVendor.endDate, "MMM d, yyyy")}</p>
+                  <p>Notice period: {selectedCriticalVendor.noticePeriod} days</p>
+                  <p>
+                    Notice deadline: {format(noticeDeadline, "MMM d, yyyy")}
+                    {pastNotice ? " (action needed now)" : ""}
+                  </p>
+                  <p>Monthly cost: ${getMonthlyCost(selectedCriticalVendor).toLocaleString()}</p>
+                </div>
+                <div className="flex justify-end pt-1">
+                  <Button type="button" variant="outline" onClick={() => setSelectedCriticalVendor(null)}>
+                    Close
+                  </Button>
+                </div>
+              </div>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
 
       {/* Edit dialog */}
       <Dialog open={!!editVendor} onOpenChange={(o) => !o && setEditVendor(null)}>
