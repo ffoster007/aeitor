@@ -14,22 +14,25 @@ import {
   Check,
 } from "lucide-react";
 import { signOutAction } from "@/actions/auth";
+import { useTheme, type ThemePreference } from "@/components/providers/theme-provider";
 
 // ---------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------
-type Theme = "Light" | "Dark" | "System";
-
 interface UserInfo {
   username: string;
   email: string;
   avatarUrl?: string | null;
 }
 
-const THEME_OPTIONS: { label: Theme; icon: React.ReactNode }[] = [
-  { label: "Light",  icon: <Sun  size={14} strokeWidth={1.8} /> },
-  { label: "Dark",   icon: <Moon size={14} strokeWidth={1.8} /> },
-  { label: "System", icon: <Monitor size={14} strokeWidth={1.8} /> },
+const THEME_OPTIONS: {
+  value: ThemePreference;
+  label: string;
+  icon: React.ReactNode;
+}[] = [
+  { value: "light", label: "Light", icon: <Sun size={14} strokeWidth={1.8} /> },
+  { value: "dark", label: "Dark", icon: <Moon size={14} strokeWidth={1.8} /> },
+  { value: "system", label: "System", icon: <Monitor size={14} strokeWidth={1.8} /> },
 ];
 
 // ---------------------------------------------------------------
@@ -46,13 +49,13 @@ function AvatarImage({
 }) {
   return (
     <div
-      className="rounded-full overflow-hidden bg-[#2a2a2a] border border-[#333] flex-shrink-0 flex items-center justify-center"
+      className="rounded-full overflow-hidden bg-[var(--surface-3)] border border-[var(--border)] flex-shrink-0 flex items-center justify-center"
       style={{ width: size, height: size }}
     >
       {src ? (
         <Image src={src} alt="Avatar" width={size} height={size} className="object-cover w-full h-full" />
       ) : (
-        <span className="text-[#888] font-medium select-none" style={{ fontSize: size * 0.42 }}>
+        <span className="text-[var(--text-soft)] font-medium select-none" style={{ fontSize: size * 0.42 }}>
           {initials}
         </span>
       )}
@@ -73,7 +76,7 @@ function DropdownItem({
     <button
       role="menuitem"
       onClick={onClick}
-      className="flex items-center gap-2.5 w-full px-4 py-1.5 text-sm text-[#aaa] hover:bg-[#1f1f1f] hover:text-white cursor-pointer"
+      className="flex items-center gap-2.5 w-full px-4 py-1.5 text-sm text-[var(--text-muted)] hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)] cursor-pointer"
     >
       {icon}
       {label}
@@ -88,7 +91,7 @@ export default function Avatar({ user }: { user: UserInfo }) {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState(false);
-  const [theme, setTheme] = useState<Theme>("System");
+  const { theme, setTheme } = useTheme();
   const [isPending, startTransition] = useTransition();
 
   // Initial letter สำหรับ fallback
@@ -116,18 +119,6 @@ export default function Avatar({ user }: { user: UserInfo }) {
     };
   }, [isOpen]);
 
-  // Theme switching
-  const handleThemeChange = (selected: Theme) => {
-    setTheme(selected);
-    const root = document.documentElement;
-    if (selected === "Dark")  root.classList.add("dark");
-    if (selected === "Light") root.classList.remove("dark");
-    if (selected === "System") {
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      root.classList.toggle("dark", prefersDark);
-    }
-  };
-
   // Sign out — ใช้ Server Action จากระบบ JWT ที่สร้างไว้
   const handleSignOut = () => {
     setIsOpen(false);
@@ -154,7 +145,7 @@ export default function Avatar({ user }: { user: UserInfo }) {
         <ChevronDown
           size={12}
           strokeWidth={2}
-          className={`text-[#666] transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+          className={`text-[var(--text-soft)] transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
         />
       </button>
 
@@ -163,8 +154,8 @@ export default function Avatar({ user }: { user: UserInfo }) {
         role="menu"
         className={`
           absolute right-0 mt-2 w-64
-          bg-[#161616] text-[#cccccc]
-          border border-[#2b2b2c] rounded-lg shadow-2xl overflow-hidden
+          bg-[var(--surface-1)] text-[var(--text-secondary)]
+          border border-[var(--border)] rounded-lg shadow-2xl overflow-hidden
           origin-top-right transition-all duration-150 ease-out
           ${isOpen
             ? "opacity-100 scale-100 translate-y-0 pointer-events-auto"
@@ -173,12 +164,12 @@ export default function Avatar({ user }: { user: UserInfo }) {
         `}
       >
         {/* User info */}
-        <div className="px-4 py-3 border-b border-[#2b2b2c]">
+        <div className="px-4 py-3 border-b border-[var(--border)]">
           <div className="flex items-center gap-3">
             <AvatarImage src={user.avatarUrl} initials={initials} size={32} />
             <div className="min-w-0">
-              <p className="text-sm font-medium text-white truncate">{user.username}</p>
-              <p className="text-xs text-[#666] truncate mt-0.5">{user.email}</p>
+              <p className="text-sm font-medium text-[var(--text-primary)] truncate">{user.username}</p>
+              <p className="text-xs text-[var(--text-soft)] truncate mt-0.5">{user.email}</p>
             </div>
           </div>
         </div>
@@ -198,35 +189,35 @@ export default function Avatar({ user }: { user: UserInfo }) {
         </div>
 
         {/* Theme selector */}
-        <div className="border-t border-[#2b2b2c] py-1.5">
-          <p className="px-4 py-1.5 text-[10px] font-semibold text-[#555] uppercase tracking-widest">
+        <div className="border-t border-[var(--border)] py-1.5">
+          <p className="px-4 py-1.5 text-[10px] font-semibold text-[var(--text-soft)] uppercase tracking-widest">
             Appearance
           </p>
-          {THEME_OPTIONS.map(({ label, icon }) => (
+          {THEME_OPTIONS.map(({ value, label, icon }) => (
             <button
-              key={label}
+              key={value}
               role="menuitem"
-              onClick={() => handleThemeChange(label)}
-              className="flex items-center justify-between w-full px-4 py-1.5 text-sm hover:bg-[#1f1f1f] cursor-pointer"
+              onClick={() => setTheme(value)}
+              className="flex items-center justify-between w-full px-4 py-1.5 text-sm hover:bg-[var(--surface-2)] cursor-pointer"
             >
-              <span className="flex items-center gap-2.5 text-[#aaa]">
+              <span className="flex items-center gap-2.5 text-[var(--text-muted)]">
                 {icon}
                 {label}
               </span>
-              {theme === label && (
-                <Check size={13} strokeWidth={2.5} className="text-[#007acc]" />
+              {theme === value && (
+                <Check size={13} strokeWidth={2.5} className="text-[var(--brand)]" />
               )}
             </button>
           ))}
         </div>
 
         {/* Sign out */}
-        <div className="border-t border-[#2b2b2c] py-1.5">
+        <div className="border-t border-[var(--border)] py-1.5">
           <button
             role="menuitem"
             onClick={handleSignOut}
             disabled={isPending}
-            className="flex items-center gap-2.5 w-full px-4 py-1.5 text-sm text-[#e05252] hover:bg-[#1f1f1f] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2.5 w-full px-4 py-1.5 text-sm text-[var(--destructive)] hover:bg-[var(--surface-2)] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <LogOut size={14} strokeWidth={1.8} />
             {isPending ? "Signing out..." : "Sign out"}

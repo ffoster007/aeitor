@@ -3,21 +3,21 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-[#3c89ff] focus:ring-offset-2",
+  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--ring)] focus:ring-offset-2",
   {
     variants: {
       variant: {
         default:
-          "border-transparent bg-[#3c89ff] text-white",
+          "border-transparent bg-[var(--brand)] text-[var(--primary-foreground)]",
         secondary:
-          "border-transparent bg-[#383838] text-gray-300",
+          "border-transparent bg-[var(--secondary)] text-[var(--secondary-foreground)]",
         safe:
-          "border-transparent bg-green-900/40 text-green-400 border-green-800",
+          "bg-[var(--success-bg)] text-[var(--success-text)] border-[var(--success-border)]",
         warning:
-          "border-transparent bg-yellow-900/40 text-yellow-400 border-yellow-800",
+          "bg-[var(--warning-bg)] text-[var(--warning-text)] border-[var(--warning-border)]",
         critical:
-          "border-transparent bg-red-900/40 text-red-400 border-red-800",
-        outline: "text-gray-300 border-[#383838]",
+          "bg-[var(--critical-bg)] text-[var(--critical-text)] border-[var(--critical-border)]",
+        outline: "text-[var(--text-secondary)] border-[var(--border)]",
       },
     },
     defaultVariants: {

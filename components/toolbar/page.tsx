@@ -28,7 +28,7 @@ export default function Toolbar({ user }: ToolbarProps = {}) {
   const isSignedIn = Boolean(user);
 
   return (
-    <header className="h-10 bg-[#161616] border-b border-[#2b2b2c] flex items-center text-white text-xs px-2 w-full flex-none sticky top-0 z-40">
+    <header className="h-10 bg-[var(--nav-bg)] border-b border-[var(--border)] flex items-center text-[var(--text-primary)] text-xs px-2 w-full flex-none sticky top-0 z-40">
       {/* Left — Logo */}
         <div className="flex items-center h-full">
             <Link href="/dashboard" className="flex items-center px-1.5 h-full space-x-2">
@@ -40,7 +40,7 @@ export default function Toolbar({ user }: ToolbarProps = {}) {
                 priority
                 className="mr-2"
                 />
-                <span className="text-[#2d2f36]">/</span>
+                <span className="text-[var(--text-soft)]">/</span>
             </Link>
         </div>
 
@@ -53,7 +53,7 @@ export default function Toolbar({ user }: ToolbarProps = {}) {
           <Avatar user={{ username: currentUser.username, email: currentUser.email }} />
         </div>
       ) : (
-        <div className="px-2 text-[#9e9e9e]">Guest</div>
+        <div className="px-2 text-[var(--text-muted)]">Guest</div>
       )}
     </header>
   );

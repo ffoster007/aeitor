@@ -25,7 +25,7 @@ export default function Page({ user, vendors, billing }: PageProps) {
       <Toolbar user={user} />
       <div className='flex flex-1 overflow-hidden'>
         <ActivityBar activeTab={activeTab} onTabSelect={setActiveTab} />
-        <div className="flex-1 bg-[#1a1a1a] overflow-hidden">
+        <div className="flex-1 bg-[var(--surface-0)] overflow-hidden">
           {activeTab === 'Home' && <HowToPage />}
           {activeTab === 'Workspace' && <VendorContracts vendors={vendors} billing={billing} />}
         </div>

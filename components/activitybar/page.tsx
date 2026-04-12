@@ -16,7 +16,7 @@ interface ActivityBarProps {
 
 export default function ActivityBar({ activeTab, onTabSelect }: ActivityBarProps) {
   return (
-    <div className="h-full w-12 bg-[#161616] border-r border-[#1f1f1f] flex flex-col items-center justify-between text-gray-300 py-2">
+    <div className="h-full w-12 bg-[var(--sidebar-bg)] border-r border-[var(--border)] flex flex-col items-center justify-between text-[var(--text-muted)] py-2">
       <div className="flex flex-col items-center space-y-1">
         {tabs.map((tab) => {
           const Icon = tab.icon;
@@ -25,8 +25,8 @@ export default function ActivityBar({ activeTab, onTabSelect }: ActivityBarProps
             <button
               key={tab.id}
               onClick={() => onTabSelect(tab.id)}
-              className={`w-10 h-10 flex items-center justify-center rounded-md transition-colors duration-150 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3c89ff] cursor-pointer ${
-                isActive ? "text-white bg-[#383838]" : ""
+              className={`w-10 h-10 flex items-center justify-center rounded-md transition-colors duration-150 hover:text-[var(--text-primary)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] cursor-pointer ${
+                isActive ? "text-[var(--text-primary)] bg-[var(--surface-3)]" : ""
               }`}
               title={tab.label}
               aria-label={tab.label}

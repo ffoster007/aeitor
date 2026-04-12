@@ -64,26 +64,26 @@ function BillingPlansContent({ billing }: Props) {
   return (
     <>
       {searchParams.get("checkout") === "success" && (
-        <div className="mb-4 rounded-lg border border-emerald-900/40 bg-emerald-950/30 px-4 py-3 text-sm text-emerald-300">
+        <div className="mb-4 rounded-lg border border-[var(--success-border)] bg-[var(--success-bg)] px-4 py-3 text-sm text-[var(--success-text)]">
           Checkout completed. Your subscription will be active once Stripe webhook processing finishes.
         </div>
       )}
 
       {searchParams.get("checkout") === "cancel" && (
-        <div className="mb-4 rounded-lg border border-amber-900/40 bg-amber-950/30 px-4 py-3 text-sm text-amber-300">
+        <div className="mb-4 rounded-lg border border-[var(--warning-border)] bg-[var(--warning-bg)] px-4 py-3 text-sm text-[var(--warning-text)]">
           Checkout was canceled. You can choose a plan again anytime.
         </div>
       )}
 
       {errorMessage && (
-        <div className="mb-4 rounded-lg border border-red-900/40 bg-red-950/30 px-4 py-3 text-sm text-red-300">
+        <div className="mb-4 rounded-lg border border-[var(--critical-border)] bg-[var(--critical-bg)] px-4 py-3 text-sm text-[var(--critical-text)]">
           {errorMessage}
         </div>
       )}
 
       {billing.isPaid && (
-        <div className="mb-5 rounded-2xl border border-[#343434] bg-[#202020] px-4 py-3 flex flex-wrap items-center justify-between gap-3">
-          <p className="text-sm text-[#d9d3ca]">
+        <div className="mb-5 rounded-2xl border border-[var(--border)] bg-[var(--surface-1)] px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+          <p className="text-sm text-[var(--text-secondary)]">
             Current plan: {billing.plan}
             {billing.currentPeriodEnd ? ` • Renews ${new Date(billing.currentPeriodEnd).toLocaleDateString()}` : ""}
           </p>
@@ -91,7 +91,7 @@ function BillingPlansContent({ billing }: Props) {
             type="button"
             onClick={openPortal}
             disabled={portalPending || pendingPlan !== null}
-            className="rounded-full border border-[#4a4a4a] px-4 py-2 text-sm text-[#f3efe8] hover:bg-[#2b2b2b] transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            className="rounded-full border border-[var(--border)] px-4 py-2 text-sm text-[var(--text-primary)] hover:bg-[var(--surface-3)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             {portalPending ? (
               <span className="flex items-center gap-2">

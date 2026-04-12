@@ -80,9 +80,9 @@ export function AccountSettings({
   }
 
   const inputClass =
-    "w-full rounded-xl border border-[#2e2e2e] bg-[#212121] px-4 py-2.5 text-sm text-[#f3efe8] placeholder-[#5a5550] outline-none focus:border-[#4a4540] focus:ring-0 disabled:opacity-50";
+    "w-full rounded-xl border border-[var(--border)] bg-[var(--input)] px-4 py-2.5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-soft)] outline-none focus:border-[var(--brand)] focus:ring-0 disabled:opacity-50";
   const labelClass =
-    "mb-1.5 block text-[11px] uppercase tracking-[0.22em] text-[#8e887f]";
+    "mb-1.5 block text-[11px] uppercase tracking-[0.22em] text-[var(--text-muted)]";
   const fieldError = (key: string) => {
     if (!result || result.success) return null;
     const msg = result.errors[key]?.[0];
@@ -96,7 +96,7 @@ export function AccountSettings({
       {/* Account info */}
       <section>
         <h2
-          className="mb-5 text-xl leading-tight text-[#f3efe8]"
+          className="mb-5 text-xl leading-tight text-[var(--text-primary)]"
           style={{ fontFamily: "'Georgia', 'Times New Roman', serif", fontWeight: 400 }}
         >
           Account
@@ -116,7 +116,7 @@ export function AccountSettings({
 
         {isOAuth && (
           <p
-            className="mt-4 text-xs leading-5 text-[#8e887f]"
+            className="mt-4 text-xs leading-5 text-[var(--text-muted)]"
             style={{ fontFamily: "'Helvetica Neue', sans-serif" }}
           >
             Your account is connected via OAuth. Password management is handled by your identity
@@ -127,9 +127,9 @@ export function AccountSettings({
 
       {/* Change password — only for credential users */}
       {!isOAuth && (
-        <section className="border-t border-[#2b2b2c] pt-8">
+        <section className="border-t border-[var(--border)] pt-8">
           <h2
-            className="mb-5 text-xl leading-tight text-[#f3efe8]"
+            className="mb-5 text-xl leading-tight text-[var(--text-primary)]"
             style={{ fontFamily: "'Georgia', 'Times New Roman', serif", fontWeight: 400 }}
           >
             Change password
@@ -188,14 +188,12 @@ export function AccountSettings({
               <p className="text-xs text-red-400">{result.errors._form[0]}</p>
             )}
 
-            {result?.success && (
-              <p className="text-xs text-green-400">Password updated successfully.</p>
-            )}
+            {result?.success && <p className="text-xs text-[var(--success-text)]">Password updated successfully.</p>}
 
             <button
               type="submit"
               disabled={isPending}
-              className="rounded-full border border-[#ece4d6] bg-[#ece4d6] px-5 py-2.5 text-sm text-[#171717] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50  cursor-pointer"
+              className="rounded-full border border-[var(--secondary)] bg-[var(--secondary)] px-5 py-2.5 text-sm text-[var(--secondary-foreground)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
               style={{ fontFamily: "'Helvetica Neue', sans-serif" }}
             >
               {isPending ? (
@@ -208,15 +206,15 @@ export function AccountSettings({
         </section>
       )}
 
-      <section className="border-t border-[#4b2424] pt-8">
+      <section className="border-t border-[var(--critical-border)] pt-8">
         <h2
-          className="mb-2 text-xl leading-tight text-[#ffb3b3]"
+          className="mb-2 text-xl leading-tight text-[var(--critical-text)]"
           style={{ fontFamily: "'Georgia', 'Times New Roman', serif", fontWeight: 400 }}
         >
           Danger zone
         </h2>
         <p
-          className="max-w-2xl text-sm leading-6 text-[#d8b2b2]"
+          className="max-w-2xl text-sm leading-6 text-[var(--text-secondary)]"
           style={{ fontFamily: "'Helvetica Neue', sans-serif" }}
         >
           Deleting your account starts a two-step process: immediate soft deletion now, then
@@ -230,39 +228,39 @@ export function AccountSettings({
             setDeleteResult(null);
             setDeleteOpen(true);
           }}
-          className="mt-4 rounded-full border border-[#a94444] bg-[#351919] px-5 py-2.5 text-sm text-[#ffd8d8] transition-opacity hover:opacity-90 cursor-pointer"
+          className="mt-4 rounded-full border border-[var(--critical-border)] bg-[var(--critical-bg)] px-5 py-2.5 text-sm text-[var(--critical-text)] transition-opacity hover:opacity-90 cursor-pointer"
           style={{ fontFamily: "'Helvetica Neue', sans-serif" }}
         >
           Delete account
         </button>
 
         <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-          <DialogContent className="max-w-xl border-[#4a2d2d] bg-[#1b1616] text-[#f9eded]">
+          <DialogContent className="max-w-xl border-[var(--critical-border)] bg-[var(--card)] text-[var(--text-primary)]">
             <DialogHeader className="space-y-3">
               <DialogTitle
-                className="text-2xl text-[#ffd9d9]"
+                className="text-2xl text-[var(--critical-text)]"
                 style={{ fontFamily: "'Georgia', 'Times New Roman', serif", fontWeight: 400 }}
               >
                 Confirm account deletion
               </DialogTitle>
-              <DialogDescription className="text-sm leading-6 text-[#d9b9b9]">
+              <DialogDescription className="text-sm leading-6 text-[var(--text-muted)]">
                 This action is irreversible after the hard-delete deadline.
               </DialogDescription>
             </DialogHeader>
 
-            <div className="space-y-3 text-sm text-[#e8cfcf]">
-              <p className="text-xs uppercase tracking-[0.2em] text-[#caa0a0]">Data impacted</p>
+            <div className="space-y-3 text-sm text-[var(--text-secondary)]">
+              <p className="text-xs uppercase tracking-[0.2em] text-[var(--text-muted)]">Data impacted</p>
               <ul className="space-y-1 text-sm">
                 <li>- Profile data (username, email, credentials)</li>
                 <li>- Vendors, alerts, and related contract metadata</li>
                 <li>- Sessions and auth tokens</li>
                 <li>- Billing linkage and subscription access</li>
               </ul>
-              <p className="text-xs leading-5 text-[#cfa9a9]">
+              <p className="text-xs leading-5 text-[var(--text-muted)]">
                 Refund policy: subscription cancellation does not automatically issue a refund.
                 If you were charged recently, contact support with your charge ID for manual review.
               </p>
-              <p className="text-xs leading-5 text-[#cfa9a9]">
+              <p className="text-xs leading-5 text-[var(--text-muted)]">
                 GDPR note: deletion requests are hard-deleted within 30 days with an audit trail.
               </p>
             </div>

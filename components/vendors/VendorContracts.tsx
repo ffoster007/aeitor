@@ -174,11 +174,11 @@ function CalendarView({ vendors }: { vendors: Vendor[] }) {
           return d.getFullYear() === year && d.getMonth() === month;
         });
         return (
-          <div key={label} className="flex items-start gap-4 py-2 border-b border-[#2a2a2a]">
-            <div className="w-24 text-sm text-gray-400 shrink-0 pt-0.5">{label}</div>
+          <div key={label} className="flex items-start gap-4 py-2 border-b border-[var(--border)]">
+            <div className="w-24 text-sm text-[var(--text-muted)] shrink-0 pt-0.5">{label}</div>
             <div className="flex flex-wrap gap-2">
               {renewals.length === 0 ? (
-                <span className="text-xs text-gray-600">—</span>
+                <span className="text-xs text-[var(--text-soft)]">-</span>
               ) : (
                 renewals.map((v) => {
                   const status = getStatus(v.endDate);
@@ -187,10 +187,10 @@ function CalendarView({ vendors }: { vendors: Vendor[] }) {
                       key={v.id}
                       className={`text-xs px-2 py-1 rounded-full ${
                         status === "critical"
-                          ? "bg-red-900/40 text-red-400"
+                          ? "bg-[var(--critical-bg)] text-[var(--critical-text)]"
                           : status === "warning"
-                          ? "bg-yellow-900/40 text-yellow-400"
-                          : "bg-green-900/40 text-green-400"
+                          ? "bg-[var(--warning-bg)] text-[var(--warning-text)]"
+                          : "bg-[var(--success-bg)] text-[var(--success-text)]"
                       }`}
                     >
                       {v.name} · {format(v.endDate, "MMM d")}
@@ -217,26 +217,26 @@ function SpendView({ vendors }: { vendors: Vendor[] }) {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-3 gap-3">
-        <div className="bg-[#222222] rounded-lg p-4 border border-[#2a2a2a]">
-          <p className="text-xs text-gray-500">Total monthly</p>
-          <p className="text-2xl font-semibold text-white mt-1">
+        <div className="bg-[var(--surface-1)] rounded-lg p-4 border border-[var(--border)]">
+          <p className="text-xs text-[var(--text-muted)]">Total monthly</p>
+          <p className="text-2xl font-semibold text-[var(--text-primary)] mt-1">
             ${(total / 1000).toFixed(total >= 1000 ? 1 : 0)}{total >= 1000 ? "K" : ""}
           </p>
         </div>
-        <div className="bg-[#222222] rounded-lg p-4 border border-[#2a2a2a]">
-          <p className="text-xs text-gray-500">Annual spend</p>
-          <p className="text-2xl font-semibold text-white mt-1">
+        <div className="bg-[var(--surface-1)] rounded-lg p-4 border border-[var(--border)]">
+          <p className="text-xs text-[var(--text-muted)]">Annual spend</p>
+          <p className="text-2xl font-semibold text-[var(--text-primary)] mt-1">
             ${((total * 12) / 1000).toFixed(1)}K
           </p>
         </div>
-        <div className="bg-[#222222] rounded-lg p-4 border border-[#2a2a2a]">
-          <p className="text-xs text-gray-500">Vendors tracked</p>
-          <p className="text-2xl font-semibold text-white mt-1">{vendors.length}</p>
+        <div className="bg-[var(--surface-1)] rounded-lg p-4 border border-[var(--border)]">
+          <p className="text-xs text-[var(--text-muted)]">Vendors tracked</p>
+          <p className="text-2xl font-semibold text-[var(--text-primary)] mt-1">{vendors.length}</p>
         </div>
       </div>
 
       <div>
-        <p className="text-sm text-gray-400 mb-3">Top vendors by cost</p>
+        <p className="text-sm text-[var(--text-muted)] mb-3">Top vendors by cost</p>
         <div className="space-y-3">
           {sorted.map((v) => {
             const cost = getMonthlyCost(v);
@@ -244,12 +244,12 @@ function SpendView({ vendors }: { vendors: Vendor[] }) {
             return (
               <div key={v.id}>
                 <div className="flex justify-between text-sm mb-1">
-                  <span className="text-gray-200">{v.name}</span>
-                  <span className="text-gray-400">${cost.toLocaleString()}/mo</span>
+                  <span className="text-[var(--text-secondary)]">{v.name}</span>
+                  <span className="text-[var(--text-muted)]">${cost.toLocaleString()}/mo</span>
                 </div>
-                <div className="h-2 bg-[#2a2a2a] rounded-full overflow-hidden">
+                <div className="h-2 bg-[var(--surface-3)] rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-[#3c89ff] rounded-full transition-all"
+                    className="h-full bg-[var(--brand)] rounded-full transition-all"
                     style={{ width: `${pct}%` }}
                   />
                 </div>
@@ -423,12 +423,12 @@ export default function VendorContracts({ vendors: initialVendors, billing }: Pr
   }
 
   return (
-    <div className="p-6 h-full overflow-y-auto">
+    <div className="p-6 h-full overflow-y-auto text-[var(--text-primary)]">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-lg font-semibold text-white">Vendor contracts</h1>
-          <p className="text-xs text-gray-500 mt-1">
+          <h1 className="text-lg font-semibold text-[var(--text-primary)]">Vendor contracts</h1>
+          <p className="text-xs text-[var(--text-muted)] mt-1">
             Plan: {billing.plan}
             {billing.vendorLimit === null ? " - unlimited vendors" : ` - ${vendors.length}/${billing.vendorLimit} vendors used`}
           </p>
@@ -437,7 +437,7 @@ export default function VendorContracts({ vendors: initialVendors, billing }: Pr
           {canExportCsv ? (
             <a
               href="/api/vendors/export"
-              className="inline-flex items-center gap-1.5 h-9 rounded-md px-3 text-sm border border-[#383838] bg-transparent hover:bg-[#383838] text-gray-300 hover:text-white transition-colors"
+              className="inline-flex items-center gap-1.5 h-9 rounded-md px-3 text-sm border border-[var(--border)] bg-transparent hover:bg-[var(--surface-3)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
             >
               <Download size={14} />
               Export CSV
@@ -446,7 +446,7 @@ export default function VendorContracts({ vendors: initialVendors, billing }: Pr
             <button
               type="button"
               onClick={() => setUpgradeOpen(true)}
-              className="inline-flex items-center gap-1.5 h-9 rounded-md px-3 text-sm border border-[#383838] bg-transparent hover:bg-[#383838] text-gray-300 hover:text-white transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 h-9 rounded-md px-3 text-sm border border-[var(--border)] bg-transparent hover:bg-[var(--surface-3)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
             >
               <Download size={14} />
               Export CSV (Upgrade)
@@ -460,7 +460,7 @@ export default function VendorContracts({ vendors: initialVendors, billing }: Pr
               onChange={handleCsvUpload}
               disabled={isCsvPending || isPending}
             />
-            <span className={`inline-flex items-center gap-1.5 h-9 rounded-md px-3 text-sm border border-[#383838] bg-transparent hover:bg-[#383838] text-gray-300 hover:text-white transition-colors cursor-pointer ${isCsvPending ? "opacity-50 pointer-events-none" : ""}`}>
+            <span className={`inline-flex items-center gap-1.5 h-9 rounded-md px-3 text-sm border border-[var(--border)] bg-transparent hover:bg-[var(--surface-3)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer ${isCsvPending ? "opacity-50 pointer-events-none" : ""}`}>
               {isCsvPending ? <Spinner size={14} /> : <Upload size={14} />}
               {isCsvPending ? "Importing..." : "Import CSV"}
             </span>
@@ -488,26 +488,26 @@ export default function VendorContracts({ vendors: initialVendors, billing }: Pr
       </div>
 
       {actionError && (
-        <div className="mb-4 rounded-lg border border-red-900/40 bg-red-950/30 px-4 py-3 text-sm text-red-300">
+        <div className="mb-4 rounded-lg border border-[var(--critical-border)] bg-[var(--critical-bg)] px-4 py-3 text-sm text-[var(--critical-text)]">
           {actionError}
         </div>
       )}
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3 mb-6">
-        <div className="bg-[#222222] rounded-lg px-4 py-3 border border-[#2a2a2a]">
-          <p className="text-xs text-gray-500">Total vendors</p>
-          <p className="text-2xl font-semibold text-white mt-1">{vendors.length}</p>
+        <div className="bg-[var(--surface-1)] rounded-lg px-4 py-3 border border-[var(--border)]">
+          <p className="text-xs text-[var(--text-muted)]">Total vendors</p>
+          <p className="text-2xl font-semibold text-[var(--text-primary)] mt-1">{vendors.length}</p>
         </div>
-        <div className="bg-[#222222] rounded-lg px-4 py-3 border border-[#2a2a2a]">
-          <p className="text-xs text-gray-500">Renewing in 30d</p>
-          <p className={`text-2xl font-semibold mt-1 ${renewingIn30 > 0 ? "text-red-400" : "text-white"}`}>
+        <div className="bg-[var(--surface-1)] rounded-lg px-4 py-3 border border-[var(--border)]">
+          <p className="text-xs text-[var(--text-muted)]">Renewing in 30d</p>
+          <p className={`text-2xl font-semibold mt-1 ${renewingIn30 > 0 ? "text-[var(--critical-text)]" : "text-[var(--text-primary)]"}`}>
             {renewingIn30}
           </p>
         </div>
-        <div className="bg-[#222222] rounded-lg px-4 py-3 border border-[#2a2a2a]">
-          <p className="text-xs text-gray-500">Monthly spend</p>
-          <p className="text-2xl font-semibold text-white mt-1">
+        <div className="bg-[var(--surface-1)] rounded-lg px-4 py-3 border border-[var(--border)]">
+          <p className="text-xs text-[var(--text-muted)]">Monthly spend</p>
+          <p className="text-2xl font-semibold text-[var(--text-primary)] mt-1">
             ${totalMonthly >= 1000
               ? `${(totalMonthly / 1000).toFixed(1)}K`
               : totalMonthly.toLocaleString()}
@@ -516,7 +516,7 @@ export default function VendorContracts({ vendors: initialVendors, billing }: Pr
       </div>
 
       {/* View tabs */}
-      <div className="flex gap-1 mb-5 bg-[#1f1f1f] rounded-lg p-1 w-fit">
+      <div className="flex gap-1 mb-5 bg-[var(--surface-2)] rounded-lg p-1 w-fit">
         {(["list", "calendar", "spend"] as View[]).map((v) => {
           const Icon = v === "list" ? List : v === "calendar" ? Calendar : DollarSign;
           const label = v === "list" ? "Contracts" : v === "calendar" ? "Calendar" : "Spending";
@@ -526,8 +526,8 @@ export default function VendorContracts({ vendors: initialVendors, billing }: Pr
               onClick={() => setView(v)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm transition-colors cursor-pointer ${
                 view === v
-                  ? "bg-[#383838] text-white"
-                  : "text-gray-500 hover:text-gray-300"
+                  ? "bg-[var(--surface-3)] text-[var(--text-primary)]"
+                  : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
               }`}
             >
               <Icon size={13} />
@@ -548,14 +548,14 @@ export default function VendorContracts({ vendors: initialVendors, billing }: Pr
             return (
               <div
                 key={v.id}
-                className="flex items-start gap-3 bg-amber-950/30 border border-amber-800/50 rounded-lg px-4 py-3 mb-3"
+                className="flex items-start gap-3 rounded-lg px-4 py-3 mb-3 bg-[var(--warning-bg)] border border-[var(--warning-border)]"
               >
-                <AlertTriangle size={16} className="text-amber-400 mt-0.5 shrink-0" />
+                <AlertTriangle size={16} className="text-[var(--warning-text)] mt-0.5 shrink-0" />
                 <div className="text-sm">
-                  <p className="text-amber-200 font-medium">
+                  <p className="text-[var(--text-primary)] font-medium">
                     {v.name} renews in {days} day{days !== 1 ? "s" : ""}
                   </p>
-                  <p className="text-amber-400/80 text-xs mt-0.5">
+                  <p className="text-[var(--warning-text)] text-xs mt-0.5">
                     Notice period ends {format(noticeDeadline, "MMM d")}
                     {pastNotice ? " — action needed now" : ""}
                   </p>
@@ -566,13 +566,13 @@ export default function VendorContracts({ vendors: initialVendors, billing }: Pr
 
           {/* Table */}
           {vendors.length === 0 ? (
-            <div className="text-center py-16 text-gray-500">
+            <div className="text-center py-16 text-[var(--text-muted)]">
               <p className="text-sm">No vendors yet. Add your first vendor or import a CSV.</p>
             </div>
           ) : (
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-gray-500 border-b border-[#2a2a2a]">
+                <tr className="text-[var(--text-muted)] border-b border-[var(--border)]">
                   <th className="text-left pb-2 font-normal">Vendor</th>
                   <th className="text-left pb-2 font-normal">Renewal</th>
                   <th className="text-left pb-2 font-normal">Cost/mo</th>
@@ -586,11 +586,11 @@ export default function VendorContracts({ vendors: initialVendors, billing }: Pr
                   return (
                     <tr
                       key={v.id}
-                      className="border-b border-[#1f1f1f] hover:bg-[#1f1f1f]/50 transition-colors"
+                      className="border-b border-[var(--border)] hover:bg-[var(--surface-2)] transition-colors"
                     >
-                      <td className="py-3 font-medium text-gray-100">{v.name}</td>
-                      <td className="py-3 text-gray-300">{format(v.endDate, "MMM d")}</td>
-                      <td className="py-3 text-gray-300">
+                      <td className="py-3 font-medium text-[var(--text-primary)]">{v.name}</td>
+                      <td className="py-3 text-[var(--text-secondary)]">{format(v.endDate, "MMM d")}</td>
+                      <td className="py-3 text-[var(--text-secondary)]">
                         ${getMonthlyCost(v).toLocaleString()}
                       </td>
                       <td className="py-3">
@@ -600,13 +600,13 @@ export default function VendorContracts({ vendors: initialVendors, billing }: Pr
                         <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => setEditVendor(v)}
-                            className="text-xs text-gray-500 hover:text-gray-300 transition-colors cursor-pointer"
+                            className="text-xs text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors cursor-pointer"
                           >
                             Edit
                           </button>
                           <button
                             onClick={() => setDeleteId(v.id)}
-                            className="text-xs text-red-600 hover:text-red-400 transition-colors cursor-pointer"
+                            className="text-xs text-[var(--destructive)] hover:opacity-80 transition-colors cursor-pointer"
                           >
                             Delete
                           </button>

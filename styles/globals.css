@@ -1,7 +1,59 @@
 @import "tailwindcss";
 
 :root {
-  /* App dark theme (default) */
+  --background: #f5efe4;
+  --foreground: #1d1a16;
+  --card: #fffaf2;
+  --card-foreground: #1d1a16;
+  --popover: #fffaf2;
+  --popover-foreground: #1d1a16;
+  --primary: #2f6ea5;
+  --primary-foreground: #fdfdfd;
+  --secondary: #e8ddd0;
+  --secondary-foreground: #2a261f;
+  --muted: #f0e7db;
+  --muted-foreground: #6f665b;
+  --accent: #ede2d6;
+  --accent-foreground: #2a261f;
+  --destructive: #be3a2e;
+  --destructive-foreground: #fff5f4;
+  --border: #d9ccb9;
+  --input: #efe4d7;
+  --ring: #2f6ea5;
+
+  --surface-0: #f5efe4;
+  --surface-1: #fffaf2;
+  --surface-2: #f1e7d9;
+  --surface-3: #e8ddd0;
+  --nav-bg: #f7f0e5;
+  --sidebar-bg: #efe2d2;
+
+  --text-primary: #1d1a16;
+  --text-secondary: #3f382f;
+  --text-muted: #756a5e;
+  --text-soft: #8d8173;
+  --text-inverse: #f8f4ed;
+
+  --brand: #2f6ea5;
+  --brand-hover: #245b89;
+  --brand-subtle-bg: #dbe8f5;
+  --brand-subtle-text: #1f4f79;
+
+  --success-bg: #e4f6e9;
+  --success-border: #b9dfc4;
+  --success-text: #1f6a36;
+
+  --warning-bg: #fff3dc;
+  --warning-border: #f0d5a5;
+  --warning-text: #94631a;
+
+  --critical-bg: #ffe8e6;
+  --critical-border: #efb8b2;
+  --critical-text: #9a2d24;
+  --radius: 0.5rem;
+}
+
+.dark {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.93 0 0);
   --card: oklch(0.17 0 0);
@@ -21,7 +73,36 @@
   --border: oklch(0.26 0 0);
   --input: oklch(0.2 0 0);
   --ring: oklch(0.6 0.18 250);
-  --radius: 0.5rem;
+
+  --surface-0: #1a1a1a;
+  --surface-1: #202020;
+  --surface-2: #181818;
+  --surface-3: #232323;
+  --nav-bg: #161616;
+  --sidebar-bg: #161616;
+
+  --text-primary: #f3efe8;
+  --text-secondary: #d9d3ca;
+  --text-muted: #9d978d;
+  --text-soft: #767069;
+  --text-inverse: #141414;
+
+  --brand: #3c89ff;
+  --brand-hover: #2d78ef;
+  --brand-subtle-bg: #1d2f4c;
+  --brand-subtle-text: #cde0ff;
+
+  --success-bg: #13291b;
+  --success-border: #254f32;
+  --success-text: #7ed39c;
+
+  --warning-bg: #322510;
+  --warning-border: #65461a;
+  --warning-text: #e8c37f;
+
+  --critical-bg: #341818;
+  --critical-border: #6a2b2b;
+  --critical-text: #f1aaaa;
 }
 
 @theme inline {
@@ -55,5 +136,13 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+html {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
 }
