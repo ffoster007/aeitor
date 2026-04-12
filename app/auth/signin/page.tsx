@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { Eye, EyeOff, ArrowRight } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import { signInAction } from "@/actions/auth";
 import type { ActionResult } from "@/types/actions";
 
@@ -32,6 +33,7 @@ function SignInPageContent() {
   const [showPassword, setShowPassword] = useState(false);
   const [result, setResult] = useState<ActionResult | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [oauthLoading, setOauthLoading] = useState<"google" | "github" | null>(null);
 
   const redirectTo = searchParams.get("redirectTo");
   const oauthError = searchParams.get("oauthError");
@@ -40,6 +42,7 @@ function SignInPageContent() {
   const errors = result && !result.success ? result.errors : {};
 
   function startOAuth(provider: "google" | "github") {
+    setOauthLoading(provider);
     window.location.assign(`/api/auth/oauth/${provider}${oauthQuery}`);
   }
 
@@ -111,21 +114,23 @@ function SignInPageContent() {
               <button
                 type="button"
                 onClick={() => startOAuth("google")}
-                className="flex items-center justify-center gap-3 w-full py-2.5 rounded-xl border border-neutral-300 text-sm hover:border-neutral-500 hover:bg-white cursor-pointer"
+                disabled={oauthLoading !== null || isPending}
+                className="flex items-center justify-center gap-3 w-full py-2.5 rounded-xl border border-neutral-300 text-sm hover:border-neutral-500 hover:bg-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{ color: "#333", fontFamily: "'Helvetica Neue', sans-serif", backgroundColor: "rgba(255,255,255,0.6)" }}
               >
-                <GoogleIcon />
-                Continue with Google
+                {oauthLoading === "google" ? <Spinner size={16} /> : <GoogleIcon />}
+                {oauthLoading === "google" ? "Redirecting..." : "Continue with Google"}
               </button>
 
               <button
                 type="button"
                 onClick={() => startOAuth("github")}
-                className="flex items-center justify-center gap-3 w-full py-2.5 rounded-xl border border-neutral-300 text-sm hover:border-neutral-500 hover:bg-white cursor-pointer"
+                disabled={oauthLoading !== null || isPending}
+                className="flex items-center justify-center gap-3 w-full py-2.5 rounded-xl border border-neutral-300 text-sm hover:border-neutral-500 hover:bg-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{ color: "#333", fontFamily: "'Helvetica Neue', sans-serif", backgroundColor: "rgba(255,255,255,0.6)" }}
               >
-                <GitHubIcon />
-                Continue with GitHub
+                {oauthLoading === "github" ? <Spinner size={16} /> : <GitHubIcon />}
+                {oauthLoading === "github" ? "Redirecting..." : "Continue with GitHub"}
               </button>
             </div>
 
@@ -154,6 +159,7 @@ function SignInPageContent() {
                     borderColor: errors.username ? "#ef4444" : "#d1d5db",
                   }}
                   required
+                  disabled={isPending}
                 />
                 {errors.username && (
                   <p className="text-xs text-red-500" style={{ fontFamily: "'Helvetica Neue', sans-serif" }}>
@@ -185,6 +191,7 @@ function SignInPageContent() {
                       borderColor: errors.password ? "#ef4444" : "#d1d5db",
                     }}
                     required
+                    disabled={isPending}
                   />
                   <button type="button" onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 transition-colors"
@@ -202,7 +209,11 @@ function SignInPageContent() {
               <button type="submit" disabled={isPending}
                 className="mt-1 w-full py-2.5 rounded-xl text-sm text-white hover:opacity-80 transition-opacity flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 style={{ backgroundColor: "#1a1a1a", fontFamily: "'Helvetica Neue', sans-serif" }}>
-                {isPending ? "Signing in..." : <> Sign in <ArrowRight size={14} strokeWidth={2} /> </>}
+                {isPending ? (
+                  <><Spinner size={14} /> Signing in...</>
+                ) : (
+                  <> Sign in <ArrowRight size={14} strokeWidth={2} /> </>
+                )}
               </button>
             </form>
           </div>

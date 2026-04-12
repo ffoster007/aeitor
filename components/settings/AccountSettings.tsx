@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Spinner } from "@/components/ui/spinner";
 import type { ActionResult } from "@/types/actions";
 
 interface AccountSettingsProps {
@@ -194,10 +195,14 @@ export function AccountSettings({
             <button
               type="submit"
               disabled={isPending}
-              className="rounded-full border border-[#ece4d6] bg-[#ece4d6] px-5 py-2.5 text-sm text-[#171717] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-full border border-[#ece4d6] bg-[#ece4d6] px-5 py-2.5 text-sm text-[#171717] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50  cursor-pointer"
               style={{ fontFamily: "'Helvetica Neue', sans-serif" }}
             >
-              {isPending ? "Saving..." : "Update password"}
+              {isPending ? (
+                <span className="flex items-center gap-2">
+                  <Spinner size={13} /> Saving...
+                </span>
+              ) : "Update password"}
             </button>
           </form>
         </section>
@@ -298,7 +303,11 @@ export function AccountSettings({
                   disabled={isDeleting}
                   className="rounded-full border border-[#b65151] bg-[#7a2d2d] px-4 py-2 text-xs text-[#ffe3e3] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
                 >
-                  {isDeleting ? "Deleting..." : "Permanently delete"}
+                  {isDeleting ? (
+                    <span className="flex items-center gap-2">
+                      <Spinner size={12} /> Deleting...
+                    </span>
+                  ) : "Permanently delete"}
                 </button>
               </div>
             </form>

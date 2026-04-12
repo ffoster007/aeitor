@@ -5,6 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Spinner } from "@/components/ui/spinner";
 import { BILLING_PLANS, type BillingPlanId } from "@/lib/billing/plans";
 
 export type PaidPlan = Exclude<BillingPlanId, "FREE">;
@@ -164,7 +165,11 @@ export function UpgradePlanDialog({
                   onClick={() => onChoosePlan(plan.id)}
                   disabled={loadingPlan !== null}
                 >
-                  {isLoading ? "Redirecting..." : `Choose ${plan.name}`}
+                  {isLoading ? (
+                    <><Spinner size={13} /> Redirecting...</>
+                  ) : (
+                    `Choose ${plan.name}`
+                  )}
                 </button>
               </article>
             );

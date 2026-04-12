@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Eye, EyeOff, ArrowRight, ArrowLeft, Mail, Check, AlertCircle } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import { signUpAction } from "@/actions/auth";
 import type { ActionResult } from "@/types/actions";
 
@@ -36,6 +37,7 @@ export default function SignUpPage() {
   const [confirmTouched, setConfirmTouched] = useState(false);
   const [result, setResult] = useState<ActionResult | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [oauthLoading, setOauthLoading] = useState<"google" | "github" | null>(null);
 
   const errors = result && !result.success ? result.errors : {};
   const passwordsMatch = password === confirmPassword;
@@ -44,6 +46,7 @@ export default function SignUpPage() {
   const canSubmit = agreed && passwordsMatch && password.length >= 8 && confirmPassword.length > 0 && !isPending;
 
   function startOAuth(provider: "google" | "github") {
+    setOauthLoading(provider);
     window.location.assign(`/api/auth/oauth/${provider}`);
   }
 
@@ -134,21 +137,23 @@ export default function SignUpPage() {
                   <button
                     type="button"
                     onClick={() => startOAuth("google")}
-                    className="flex items-center justify-center gap-3 w-full py-2.5 rounded-xl border border-neutral-300 text-sm hover:border-neutral-500 hover:bg-white cursor-pointer"
+                    disabled={oauthLoading !== null || isPending}
+                    className="flex items-center justify-center gap-3 w-full py-2.5 rounded-xl border border-neutral-300 text-sm hover:border-neutral-500 hover:bg-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{ color: "#333", fontFamily: "'Helvetica Neue', sans-serif", backgroundColor: "rgba(255,255,255,0.6)" }}
                   >
-                    <GoogleIcon />
-                    Continue with Google
+                    {oauthLoading === "google" ? <Spinner size={16} /> : <GoogleIcon />}
+                    {oauthLoading === "google" ? "Redirecting..." : "Continue with Google"}
                   </button>
 
                   <button
                     type="button"
                     onClick={() => startOAuth("github")}
-                    className="flex items-center justify-center gap-3 w-full py-2.5 rounded-xl border border-neutral-300 text-sm hover:border-neutral-500 hover:bg-white cursor-pointer"
+                    disabled={oauthLoading !== null || isPending}
+                    className="flex items-center justify-center gap-3 w-full py-2.5 rounded-xl border border-neutral-300 text-sm hover:border-neutral-500 hover:bg-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{ color: "#333", fontFamily: "'Helvetica Neue', sans-serif", backgroundColor: "rgba(255,255,255,0.6)" }}
                   >
-                    <GitHubIcon />
-                    Continue with GitHub
+                    {oauthLoading === "github" ? <Spinner size={16} /> : <GitHubIcon />}
+                    {oauthLoading === "github" ? "Redirecting..." : "Continue with GitHub"}
                   </button>
                 </div>
 
@@ -366,7 +371,9 @@ export default function SignUpPage() {
                       cursor: canSubmit ? "pointer" : "not-allowed",
                     }}
                   >
-                    {isPending ? "Creating account..." : (
+                    {isPending ? (
+                      <><Spinner size={14} /> Creating account...</>
+                    ) : (
                       <>
                         Create account
                         <ArrowRight size={14} strokeWidth={2} />

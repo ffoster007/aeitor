@@ -4,6 +4,7 @@ import React, { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { format, differenceInDays } from "date-fns";
 import { Plus, AlertTriangle, Upload, Download, Calendar, DollarSign, List } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -59,10 +60,12 @@ function VendorForm({
   initial,
   onSave,
   onCancel,
+  isPending = false,
 }: {
   initial?: Vendor;
   onSave: (data: VendorFormData) => void;
   onCancel: () => void;
+  isPending?: boolean;
 }) {
   const [name, setName] = useState(initial?.name ?? "");
   const [endDate, setEndDate] = useState(
@@ -93,6 +96,7 @@ function VendorForm({
           onChange={(e) => setName(e.target.value)}
           placeholder="e.g. Salesforce"
           required
+          disabled={isPending}
         />
       </div>
       <div className="grid grid-cols-2 gap-3">
@@ -104,6 +108,7 @@ function VendorForm({
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
             required
+            disabled={isPending}
           />
         </div>
         <div className="space-y-1.5">
@@ -112,6 +117,7 @@ function VendorForm({
             id="notice-period"
             value={noticePeriod.toString()}
             onChange={(e) => setNoticePeriod(Number(e.target.value))}
+            disabled={isPending}
           >
             {NOTICE_OPTIONS.map((d) => (
               <option key={d} value={d}>
@@ -132,11 +138,16 @@ function VendorForm({
           onChange={(e) => setMonthlyCost(e.target.value)}
           placeholder="0"
           required
+          disabled={isPending}
         />
       </div>
       <div className="flex gap-2 pt-1">
-        <Button type="submit" className="flex-1">
-          {initial ? "Update vendor" : "Save vendor"}
+        <Button type="submit" className="flex-1" disabled={isPending}>
+          {isPending ? (
+            <><Spinner size={14} /> {initial ? "Updating..." : "Saving..."}</>
+          ) : (
+            initial ? "Update vendor" : "Save vendor"
+          )}
         </Button>
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
@@ -283,6 +294,7 @@ function parseCsv(text: string): VendorFormData[] {
 export default function VendorContracts({ vendors: initialVendors, billing }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [isCsvPending, startCsvTransition] = useTransition();
   const [view, setView] = useState<View>("list");
   const [addOpen, setAddOpen] = useState(false);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
@@ -392,7 +404,7 @@ export default function VendorContracts({ vendors: initialVendors, billing }: Pr
     reader.onload = (ev) => {
       const rows = parseCsv(ev.target?.result as string);
       if (rows.length === 0) return alert("No valid rows found in CSV");
-      startTransition(async () => {
+      startCsvTransition(async () => {
         try {
           setActionError(null);
           await importVendorsCSV(rows);
@@ -446,10 +458,11 @@ export default function VendorContracts({ vendors: initialVendors, billing }: Pr
               accept=".csv"
               className="hidden"
               onChange={handleCsvUpload}
+              disabled={isCsvPending || isPending}
             />
-            <span className="inline-flex items-center gap-1.5 h-9 rounded-md px-3 text-sm border border-[#383838] bg-transparent hover:bg-[#383838] text-gray-300 hover:text-white transition-colors cursor-pointer">
-              <Upload size={14} />
-              Import CSV
+            <span className={`inline-flex items-center gap-1.5 h-9 rounded-md px-3 text-sm border border-[#383838] bg-transparent hover:bg-[#383838] text-gray-300 hover:text-white transition-colors cursor-pointer ${isCsvPending ? "opacity-50 pointer-events-none" : ""}`}>
+              {isCsvPending ? <Spinner size={14} /> : <Upload size={14} />}
+              {isCsvPending ? "Importing..." : "Import CSV"}
             </span>
           </label>
           <Dialog open={addOpen} onOpenChange={setAddOpen}>
@@ -467,6 +480,7 @@ export default function VendorContracts({ vendors: initialVendors, billing }: Pr
               <VendorForm
                 onSave={handleCreate}
                 onCancel={() => setAddOpen(false)}
+                isPending={isPending}
               />
             </DialogContent>
           </Dialog>
@@ -636,6 +650,7 @@ export default function VendorContracts({ vendors: initialVendors, billing }: Pr
               initial={editVendor}
               onSave={handleUpdate}
               onCancel={() => setEditVendor(null)}
+                isPending={isPending}
             />
           )}
         </DialogContent>
@@ -657,7 +672,11 @@ export default function VendorContracts({ vendors: initialVendors, billing }: Pr
               disabled={isPending}
               onClick={() => deleteId && handleDelete(deleteId)}
             >
-              Delete
+              {isPending ? (
+                <><Spinner size={14} /> Deleting...</>
+              ) : (
+                "Delete"
+              )}
             </Button>
             <Button variant="outline" onClick={() => setDeleteId(null)}>
               Cancel

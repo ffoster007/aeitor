@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { BILLING_PLANS, type BillingPlanId } from "@/lib/billing/plans";
+import { Spinner } from "@/components/ui/spinner";
 import type { BillingState } from "@/lib/billing/entitlements";
 
 type PaidPlan = Exclude<BillingPlanId, "FREE">;
@@ -92,7 +93,11 @@ function BillingPlansContent({ billing }: Props) {
             disabled={portalPending || pendingPlan !== null}
             className="rounded-full border border-[#4a4a4a] px-4 py-2 text-sm text-[#f3efe8] hover:bg-[#2b2b2b] transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
-            {portalPending ? "Opening portal..." : "Manage subscription"}
+            {portalPending ? (
+              <span className="flex items-center gap-2">
+                <Spinner size={13} /> Opening portal...
+              </span>
+            ) : "Manage subscription"}
           </button>
         </div>
       )}
@@ -212,7 +217,7 @@ function BillingPlansContent({ billing }: Props) {
                 {isCurrent
                   ? "Current plan"
                   : pendingPlan === plan.id
-                  ? "Redirecting..."
+                  ? <><Spinner size={13} /> Redirecting...</>
                   : "Choose plan"}
               </button>
             </article>
