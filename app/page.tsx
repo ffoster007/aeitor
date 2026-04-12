@@ -7,81 +7,75 @@ const VENDORS = [
   {
     name: "Salesforce",
     category: "CRM · SaaS",
-    spend: "$284,000",
+    renewal: "Apr 30",
+    noticePeriod: 30,
+    monthlyCost: 23700,
     days: 18,
-    risk: "High" as const,
-    usage: "94%",
-    owner: "A. Wongkul",
+    status: "Critical" as const,
   },
   {
-    name: "AWS",
-    category: "Infrastructure · Cloud",
-    spend: "$612,000",
+    name: "HubSpot",
+    category: "Marketing Automation · SaaS",
+    renewal: "May 26",
+    noticePeriod: 45,
+    monthlyCost: 18400,
     days: 44,
-    risk: "Medium" as const,
-    usage: "87%",
-    owner: "T. Charoenwong",
+    status: "Warning" as const,
   },
   {
     name: "Workday",
     category: "HRIS · SaaS",
-    spend: "$156,000",
+    renewal: "May 09",
+    noticePeriod: 30,
+    monthlyCost: 12900,
     days: 27,
-    risk: "High" as const,
-    usage: "61%",
-    owner: "P. Rattana",
+    status: "Critical" as const,
   },
   {
-    name: "Datadog",
-    category: "Monitoring · DevOps",
-    spend: "$98,400",
+    name: "Cushman & Wakefield",
+    category: "Office Lease · Real Estate",
+    renewal: "Jun 23",
+    noticePeriod: 60,
+    monthlyCost: 7600,
     days: 72,
-    risk: "Low" as const,
-    usage: "78%",
-    owner: "K. Sombat",
+    status: "Warning" as const,
   },
   {
-    name: "Zendesk",
-    category: "Support · SaaS",
-    spend: "$74,200",
-    days: 51,
-    risk: "Medium" as const,
-    usage: "55%",
-    owner: "N. Pracha",
+    name: "Iron Mountain",
+    category: "Records Storage · Services",
+    renewal: "Aug 08",
+    noticePeriod: 30,
+    monthlyCost: 5000,
+    days: 118,
+    status: "Safe" as const,
   },
 ];
 
 const ALERTS = [
   {
     days: 18,
-    vendor: "Salesforce Enterprise",
-    value: "$284,000 · 30-day alert sent",
+    vendor: "Salesforce",
+    value: "30-day alert sent · notice window open",
     level: "red" as const,
   },
   {
     days: 44,
-    vendor: "AWS Reserved Instances",
-    value: "$612,000 · 60-day alert sent",
+    vendor: "HubSpot",
+    value: "60-day alert sent · included in weekly summary",
     level: "amber" as const,
   },
   {
     days: 72,
-    vendor: "Datadog Pro",
-    value: "$98,400 · 90-day alert sent",
+    vendor: "Cushman & Wakefield",
+    value: "90-day alert sent · lease review scheduled",
     level: "green" as const,
   },
 ];
 
-const riskStyle: Record<"High" | "Medium" | "Low", React.CSSProperties> = {
-  High: { background: "#fdecea", color: "#c0392b", border: "1px solid #f5c6c3" },
-  Medium: { background: "#fdf6e3", color: "#9a6c00", border: "1px solid #f0d97a" },
-  Low: { background: "#e8f5ee", color: "#1a6b3c", border: "1px solid #a8d9bb" },
-};
-
-const daysColor: Record<"High" | "Medium" | "Low", string> = {
-  High: "#c0392b",
-  Medium: "#b8860b",
-  Low: "#1a6b3c",
+const statusStyle: Record<"Critical" | "Warning" | "Safe", React.CSSProperties> = {
+  Critical: { background: "#fdecea", color: "#c0392b", border: "1px solid #f5c6c3" },
+  Warning: { background: "#fdf6e3", color: "#9a6c00", border: "1px solid #f0d97a" },
+  Safe: { background: "#e8f5ee", color: "#1a6b3c", border: "1px solid #a8d9bb" },
 };
 
 const alertBg: Record<"red" | "amber" | "green", React.CSSProperties> = {
@@ -95,6 +89,17 @@ const alertDaysColor: Record<"red" | "amber" | "green", string> = {
   amber: "#9a6c00",
   green: "#1a6b3c",
 };
+
+const totalMonthlySpend = VENDORS.reduce((sum, vendor) => sum + vendor.monthlyCost, 0);
+const renewingIn30Days = VENDORS.filter((vendor) => vendor.days <= 30).length;
+
+function formatCurrency(value: number) {
+  return `$${value.toLocaleString()}`;
+}
+
+function formatCompactCurrency(value: number) {
+  return `$${(value / 1000).toFixed(1)}K`;
+}
 
 export default async function LandingPage() {
   const user = await getCurrentUser();
@@ -125,7 +130,7 @@ export default async function LandingPage() {
           {[
             { label: "Docs", href: "#overview" },
             { label: "Pricing", href: "#pricing" },
-            { label: "Contract", href: "#contracts" },
+            { label: "Workspace", href: "#contracts" },
           ].map((item) => (
             <li key={item.label}>
               <a href={item.href} className="cursor-pointer hover:text-black transition-colors">
@@ -181,17 +186,17 @@ export default async function LandingPage() {
             className="text-sm max-w-sm leading-relaxed"
             style={{ color: "#666", fontFamily: "'Helvetica Neue', sans-serif" }}
           >
-            Track all vendor contracts in one dashboard. Automatic alerts at 90, 60, and 30 days.
-            Full spend and renewal risk — no spreadsheets, no surprises.
+            Track vendor renewals, notice periods, and monthly spend in one workspace.
+            Switch between contracts, calendar, and spending views, import CSVs, and keep 90/60/30-day alerts on schedule.
           </p>
         </div>
 
         {/* Stat cards */}
         <div className="grid grid-cols-3 gap-3 mb-6">
           {[
-            { label: "Total annual spend", value: "$2.4M", sub: "across 38 vendors", color: "#111" },
-            { label: "Renewals this quarter", value: "11", sub: "3 require action now", color: "#b8860b" },
-            { label: "High-risk contracts", value: "4", sub: "expiring within 30 days", color: "#c0392b" },
+            { label: "Total vendors", value: String(VENDORS.length), sub: "active in this workspace", color: "#111" },
+            { label: "Renewing in 30d", value: String(renewingIn30Days), sub: "notice windows already open", color: "#c0392b" },
+            { label: "Monthly spend", value: formatCompactCurrency(totalMonthlySpend), sub: "visible in Spending view", color: "#111" },
           ].map(({ label, value, sub, color }) => (
             <div
               key={label}
@@ -230,11 +235,11 @@ export default async function LandingPage() {
             style={{ fontFamily: "'Helvetica Neue', sans-serif" }}
           >
             <div>
-              <p className="text-sm font-medium text-neutral-800">Contract Renewal Tracker</p>
-              <p className="text-xs text-neutral-400 mt-0.5">Sorted by renewal urgency</p>
+              <p className="text-sm font-medium text-neutral-800">Vendor contracts</p>
+              <p className="text-xs text-neutral-400 mt-0.5">Contracts view sorted by renewal date</p>
             </div>
             <div className="flex gap-2">
-              {["All", "Critical", "SaaS", "Infra"].map((f, i) => (
+              {["Contracts", "Calendar", "Spending"].map((f, i) => (
                 <span
                   key={f}
                   className="text-xs px-3 py-1 rounded-full border cursor-default"
@@ -254,7 +259,7 @@ export default async function LandingPage() {
           <table className="w-full" style={{ borderCollapse: "collapse", fontFamily: "'Helvetica Neue', sans-serif" }}>
             <thead>
               <tr style={{ borderBottom: "1px solid #eee" }}>
-                {["Vendor", "Annual Spend", "Days to Renewal", "Risk", "Usage", "Owner"].map((h) => (
+                {["Vendor", "Renewal", "Notice", "Cost/mo", "Status"].map((h) => (
                   <th
                     key={h}
                     className="text-left px-5 py-3 text-xs uppercase tracking-widest font-normal"
@@ -275,32 +280,26 @@ export default async function LandingPage() {
                     <p className="text-sm font-medium text-neutral-800">{v.name}</p>
                     <p className="text-xs text-neutral-400 mt-0.5">{v.category}</p>
                   </td>
-                  <td className="px-5 py-4 text-sm text-neutral-700" style={{ fontVariantNumeric: "tabular-nums" }}>
-                    {v.spend}
-                  </td>
                   <td className="px-5 py-4">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium" style={{ color: daysColor[v.risk], fontVariantNumeric: "tabular-nums" }}>
-                        {v.days} days
-                      </span>
-                      <div className="relative h-1 rounded-full overflow-hidden" style={{ width: 72, backgroundColor: "#eee" }}>
-                        <div
-                          className="absolute left-0 top-0 h-full rounded-full"
-                          style={{ width: `${v.days}%`, backgroundColor: daysColor[v.risk] }}
-                        />
-                      </div>
-                    </div>
+                    <p className="text-sm text-neutral-700" style={{ fontVariantNumeric: "tabular-nums" }}>
+                      {v.renewal}
+                    </p>
+                    <p className="text-xs text-neutral-400 mt-0.5">{v.days} days remaining</p>
+                  </td>
+                  <td className="px-5 py-4 text-sm text-neutral-700" style={{ fontVariantNumeric: "tabular-nums" }}>
+                    {v.noticePeriod} days
+                  </td>
+                  <td className="px-5 py-4 text-sm text-neutral-700" style={{ fontVariantNumeric: "tabular-nums" }}>
+                    {formatCurrency(v.monthlyCost)}
                   </td>
                   <td className="px-5 py-4">
                     <span
                       className="text-xs px-2.5 py-1 rounded-full font-medium"
-                      style={riskStyle[v.risk]}
+                      style={statusStyle[v.status]}
                     >
-                      {v.risk}
+                      {v.status}
                     </span>
                   </td>
-                  <td className="px-5 py-4 text-xs text-neutral-500">{v.usage}</td>
-                  <td className="px-5 py-4 text-xs text-neutral-500">{v.owner}</td>
                 </tr>
               ))}
             </tbody>
@@ -312,7 +311,7 @@ export default async function LandingPage() {
           className="text-xs uppercase tracking-widest mt-8 mb-4"
           style={{ color: "#aaa", fontFamily: "'Helvetica Neue', sans-serif" }}
         >
-          Upcoming alerts — sent automatically
+          Automated alerts in the workspace
         </p>
         <div className="grid grid-cols-3 gap-3">
           {ALERTS.map(({ days, vendor, value, level }) => (
