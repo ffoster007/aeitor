@@ -34,6 +34,27 @@ function getDefaultUsernameFromEmail(email: string): string {
   return email.split("@")[0] || "there";
 }
 
+function safeRedirectPath(input: string | null | undefined): string {
+  if (!input) return "/dashboard";
+  if (!input.startsWith("/")) return "/dashboard";
+  if (input.startsWith("//")) return "/dashboard";
+  return input;
+}
+
+async function startSignInVerificationChallenge(user: {
+  id: string;
+  email: string;
+  username: string;
+}): Promise<boolean> {
+  try {
+    await createAndSendVerificationCode(user.id, user.email, user.username);
+  } catch {
+    return false;
+  }
+
+  return true;
+}
+
 // ---------------------------------------------------------------
 // SIGN UP
 // ---------------------------------------------------------------
@@ -108,6 +129,7 @@ export async function signInAction(formData: FormData): Promise<ActionResult> {
   const raw = {
     username: formData.get("username"),
     password: formData.get("password"),
+    redirectTo: formData.get("redirectTo"),
   };
 
   const parsed = signInSchema.safeParse(raw);
@@ -116,6 +138,7 @@ export async function signInAction(formData: FormData): Promise<ActionResult> {
   }
 
   const { username, password } = parsed.data;
+  const redirectTo = typeof raw.redirectTo === "string" ? raw.redirectTo : null;
 
   // 2. หา user — ใช้ message กว้าง ๆ เพื่อป้องกัน user enumeration
   const user = await prisma.user.findUnique({
@@ -135,31 +158,30 @@ export async function signInAction(formData: FormData): Promise<ActionResult> {
     return { success: false, errors: { _form: ["Username or Password is incorrect"] } };
   }
 
-  // 3. ตรวจสอบว่า email ได้รับการยืนยันแล้ว
-  if (!user.emailVerified) {
-    try {
-      await createAndSendVerificationCode(user.id, user.email, user.username);
-    } catch {
-      return {
-        success: false,
-        errors: { _form: ["We could not send a verification email right now. Please try again."] },
-      };
-    }
+  // 3. ทุกการ sign-in ต้อง verify ผ่าน email code ก่อนออก tokens
+  const canStartChallenge = await startSignInVerificationChallenge(
+    { id: user.id, email: user.email, username: user.username },
+  );
 
-    const searchParams = new URLSearchParams({
-      userId: user.id,
-      sent: "1",
-      source: "signin",
-    });
-
-    redirect(`/auth/verify?${searchParams.toString()}`);
+  if (!canStartChallenge) {
+    return {
+      success: false,
+      errors: { _form: ["We could not send a verification email right now. Please try again."] },
+    };
   }
 
-  // 4. ออก tokens และ set cookies
-  await issueTokens({ id: user.id, email: user.email, username: user.username });
+  const searchParams = new URLSearchParams({
+    userId: user.id,
+    sent: "1",
+    source: "signin",
+  });
 
-  revalidatePath("/", "layout");
-  redirect("/dashboard");
+  const safeRedirectTo = safeRedirectPath(redirectTo);
+  if (safeRedirectTo !== "/dashboard") {
+    searchParams.set("redirectTo", safeRedirectTo);
+  }
+
+  redirect(`/auth/verify?${searchParams.toString()}`);
 }
 
 // ---------------------------------------------------------------
@@ -188,7 +210,7 @@ export async function refreshSessionAction(): Promise<boolean> {
 
   try {
     // 1. Verify JWT signature
-    const payload = await verifyRefreshToken(rawRefreshToken);
+    await verifyRefreshToken(rawRefreshToken);
 
     // 2. ตรวจ hash ใน DB (ป้องกัน token reuse)
     const hashed = hashToken(rawRefreshToken);
@@ -197,7 +219,13 @@ export async function refreshSessionAction(): Promise<boolean> {
       include: { user: { select: { id: true, email: true, username: true, deletedAt: true } } },
     });
 
-    if (!stored || stored.expiresAt < new Date() || stored.user.deletedAt) {
+    if (!stored) {
+      // อาจเกิดจาก concurrent refresh ที่ token ถูก rotate ไปแล้วใน request อื่น
+      // ไม่ clear cookie ทันที เพื่อลดโอกาสเด้ง logout ทั้งที่ request อื่น refresh สำเร็จ
+      return false;
+    }
+
+    if (stored.expiresAt < new Date() || stored.user.deletedAt) {
       await clearAuthCookies();
       return false;
     }
@@ -217,7 +245,7 @@ export async function refreshSessionAction(): Promise<boolean> {
 // ---------------------------------------------------------------
 // VERIFY EMAIL
 // ---------------------------------------------------------------
-export async function verifyEmailAction(userId: string, code: string): Promise<ActionResult> {
+export async function verifyEmailAction(userId: string, code: string, redirectTo?: string | null): Promise<ActionResult> {
   // 1. Validate input
   const parsed = verifyEmailSchema.safeParse({ code });
   if (!parsed.success) {
@@ -236,23 +264,18 @@ export async function verifyEmailAction(userId: string, code: string): Promise<A
     return { success: false, errors: { _form: ["ไม่พบผู้ใช้"] } };
   }
 
-  // 3. ถ้า email ยืนยันแล้ว ให้ redirect ไป signin
-  if (user.emailVerified) {
-    redirect("/auth/signin");
-  }
-
-  // 4. ตรวจสอบ verification code
+  // 3. ตรวจสอบ verification code
   const isValid = await verifyCode(userId, validatedCode);
   if (!isValid) {
     return { success: false, errors: { code: ["รหัสไม่ถูกต้องหรือหมดอายุ"] } };
   }
 
-  // 5. ออก tokens และ set cookies
+  // 4. ออก tokens และ set cookies
   await issueTokens(user);
 
-  // 6. Redirect ไป dashboard
+  // 5. Redirect ไป dashboard
   revalidatePath("/", "layout");
-  redirect("/dashboard");
+  redirect(safeRedirectPath(redirectTo));
 }
 
 // ---------------------------------------------------------------
@@ -269,12 +292,7 @@ export async function resendVerificationCodeAction(userId: string): Promise<Acti
     return { success: false, errors: { _form: ["ไม่พบผู้ใช้"] } };
   }
 
-  // 2. ถ้า email ยืนยันแล้ว ให้ return error
-  if (user.emailVerified) {
-    return { success: false, errors: { _form: ["Email ของคุณได้รับการยืนยันแล้ว"] } };
-  }
-
-  // 3. สร้างและส่ง verification code ใหม่
+  // 2. สร้างและส่ง verification code ใหม่ (รองรับทั้ง initial verify และ sign-in verify)
   try {
     await createAndSendVerificationCode(user.id, user.email, user.username);
   } catch {

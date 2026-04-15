@@ -3,12 +3,11 @@
 import { Suspense, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { AlertCircle, ArrowRight, Mail, RefreshCcw } from "lucide-react";
 import { verifyEmailAction, resendVerificationCodeAction } from "@/actions/auth";
 
 function VerifyPageContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const userId = searchParams.get("userId");
   const sent = searchParams.get("sent") === "1";

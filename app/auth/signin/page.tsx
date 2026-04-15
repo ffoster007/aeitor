@@ -144,6 +144,8 @@ function SignInPageContent() {
             )}
 
             <form onSubmit={handleSubmit} className="p-5 flex flex-col gap-3" noValidate>
+              {redirectTo && <input type="hidden" name="redirectTo" value={redirectTo} />}
+
               {/* Email */}
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs" style={{ color: "#666", fontFamily: "'Helvetica Neue', sans-serif" }}>

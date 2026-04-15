@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 
-import { issueTokens } from "@/lib/auth-tokens";
+import { createAndSendVerificationCode } from "@/lib/verification";
 import { prisma } from "@/lib/prisma";
 import { createOAuthClients, oauthCookieName, safeRelativeRedirect, createUsernameSeed, type OAuthProvider } from "@/lib/oauth";
 
@@ -217,9 +217,15 @@ export async function GET(
     }
 
     const user = await resolveUserFromOAuth(provider, account.providerAccountId, account.email, account.usernameSeed);
-    await issueTokens(user);
+    await createAndSendVerificationCode(user.id, user.email, user.username);
 
-    const response = NextResponse.redirect(new URL(redirectTo, request.url));
+    const verificationUrl = new URL("/auth/verify", request.url);
+    verificationUrl.searchParams.set("userId", user.id);
+    verificationUrl.searchParams.set("sent", "1");
+    verificationUrl.searchParams.set("source", "signin");
+    verificationUrl.searchParams.set("redirectTo", redirectTo);
+
+    const response = NextResponse.redirect(verificationUrl);
     response.cookies.delete(oauthCookieName(provider, "state"));
     response.cookies.delete(oauthCookieName(provider, "redirect"));
     response.cookies.delete(oauthCookieName(provider, "verifier"));

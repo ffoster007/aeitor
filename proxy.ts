@@ -57,10 +57,24 @@ export async function proxy(request: NextRequest) {
 
         const response = NextResponse.next();
 
-        // ⚠️ บาง runtime ไม่มี getSetCookie → fallback
-        const setCookie = refreshResponse.headers.get("set-cookie");
-        if (setCookie) {
-          response.headers.append("Set-Cookie", setCookie);
+        const getSetCookie = (
+          refreshResponse.headers as Headers & { getSetCookie?: () => string[] }
+        ).getSetCookie;
+
+        const setCookies = typeof getSetCookie === "function"
+          ? getSetCookie.call(refreshResponse.headers)
+          : [];
+
+        if (setCookies.length > 0) {
+          for (const cookie of setCookies) {
+            response.headers.append("Set-Cookie", cookie);
+          }
+        } else {
+          // Fallback for runtimes that only expose a single combined Set-Cookie header.
+          const setCookie = refreshResponse.headers.get("set-cookie");
+          if (setCookie) {
+            response.headers.append("Set-Cookie", setCookie);
+          }
         }
 
         if (isAuthRoute) {
