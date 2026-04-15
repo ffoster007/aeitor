@@ -391,10 +391,24 @@ export async function requestPasswordResetAction(formData: FormData): Promise<Ac
 
   const user = await prisma.user.findUnique({
     where: { email },
-    select: { id: true, email: true, username: true, deletedAt: true },
+    select: {
+      id: true,
+      email: true,
+      username: true,
+      deletedAt: true,
+      oauthAccounts: {
+        select: { id: true },
+        take: 1,
+      },
+    },
   });
 
   if (!user || user.deletedAt) {
+    return neutralSuccess;
+  }
+
+  // OAuth-linked accounts should manage credentials with the identity provider.
+  if (user.oauthAccounts.length > 0) {
     return neutralSuccess;
   }
 
@@ -471,10 +485,28 @@ export async function resetPasswordAction(formData: FormData): Promise<ActionRes
 
   const tokenRow = await prisma.passwordResetToken.findUnique({
     where: { token: hashedToken },
-    include: { user: { select: { id: true, password: true, deletedAt: true } } },
+    include: {
+      user: {
+        select: {
+          id: true,
+          password: true,
+          deletedAt: true,
+          oauthAccounts: {
+            select: { id: true },
+            take: 1,
+          },
+        },
+      },
+    },
   });
 
-  if (!tokenRow || tokenRow.usedAt || tokenRow.expiresAt < new Date() || tokenRow.user.deletedAt) {
+  if (
+    !tokenRow
+    || tokenRow.usedAt
+    || tokenRow.expiresAt < new Date()
+    || tokenRow.user.deletedAt
+    || tokenRow.user.oauthAccounts.length > 0
+  ) {
     return { success: false, errors: { _form: ["This reset link is invalid or has expired."] } };
   }
 
