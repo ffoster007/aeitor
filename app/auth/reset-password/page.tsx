@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { Suspense, useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
@@ -15,6 +15,14 @@ import type { ActionResult } from "@/types/actions";
 type TokenState = "checking" | "valid" | "invalid";
 
 export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<ResetPasswordFallback />}>
+      <ResetPasswordContent />
+    </Suspense>
+  );
+}
+
+function ResetPasswordContent() {
   const searchParams = useSearchParams();
   const token = useMemo(() => searchParams.get("token")?.trim() ?? "", [searchParams]);
 
@@ -255,6 +263,35 @@ export default function ResetPasswordPage() {
               </div>
             )}
           </div>
+        </div>
+      </section>
+    </main>
+  );
+}
+
+function ResetPasswordFallback() {
+  return (
+    <main
+      className="min-h-screen flex flex-col"
+      style={{
+        backgroundColor: "#f0ede6",
+        backgroundImage: `
+          linear-gradient(rgba(0,0,0,0.045) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0,0,0,0.045) 1px, transparent 1px)
+        `,
+        backgroundSize: "40px 40px",
+        fontFamily: "'Georgia', serif",
+      }}
+    >
+      <section className="flex-1 flex items-center justify-center px-4 py-10">
+        <div className="rounded-2xl border border-neutral-300 p-6 text-center bg-white/60">
+          <Spinner size={18} />
+          <p
+            className="text-sm mt-3"
+            style={{ color: "#666", fontFamily: "'Helvetica Neue', sans-serif" }}
+          >
+            Loading reset form...
+          </p>
         </div>
       </section>
     </main>
