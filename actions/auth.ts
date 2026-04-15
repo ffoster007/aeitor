@@ -45,25 +45,14 @@ async function startSignInVerificationChallenge(user: {
   id: string;
   email: string;
   username: string;
-}, redirectTo?: string | null): Promise<boolean> {
+}): Promise<boolean> {
   try {
     await createAndSendVerificationCode(user.id, user.email, user.username);
   } catch {
     return false;
   }
 
-  const searchParams = new URLSearchParams({
-    userId: user.id,
-    sent: "1",
-    source: "signin",
-  });
-
-  const safeRedirectTo = safeRedirectPath(redirectTo);
-  if (safeRedirectTo !== "/dashboard") {
-    searchParams.set("redirectTo", safeRedirectTo);
-  }
-
-  redirect(`/auth/verify?${searchParams.toString()}`);
+  return true;
 }
 
 // ---------------------------------------------------------------
@@ -172,7 +161,6 @@ export async function signInAction(formData: FormData): Promise<ActionResult> {
   // 3. ทุกการ sign-in ต้อง verify ผ่าน email code ก่อนออก tokens
   const canStartChallenge = await startSignInVerificationChallenge(
     { id: user.id, email: user.email, username: user.username },
-    redirectTo,
   );
 
   if (!canStartChallenge) {
@@ -181,6 +169,19 @@ export async function signInAction(formData: FormData): Promise<ActionResult> {
       errors: { _form: ["We could not send a verification email right now. Please try again."] },
     };
   }
+
+  const searchParams = new URLSearchParams({
+    userId: user.id,
+    sent: "1",
+    source: "signin",
+  });
+
+  const safeRedirectTo = safeRedirectPath(redirectTo);
+  if (safeRedirectTo !== "/dashboard") {
+    searchParams.set("redirectTo", safeRedirectTo);
+  }
+
+  redirect(`/auth/verify?${searchParams.toString()}`);
 }
 
 // ---------------------------------------------------------------
@@ -209,7 +210,7 @@ export async function refreshSessionAction(): Promise<boolean> {
 
   try {
     // 1. Verify JWT signature
-    const payload = await verifyRefreshToken(rawRefreshToken);
+    await verifyRefreshToken(rawRefreshToken);
 
     // 2. ตรวจ hash ใน DB (ป้องกัน token reuse)
     const hashed = hashToken(rawRefreshToken);
