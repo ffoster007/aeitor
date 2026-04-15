@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 
 import { runHardDeleteSweep } from "@/lib/account-deletion";
+import { isAuthorizedCronRequest } from "@/lib/cron";
 
 export async function GET(req: Request) {
-  const secret = req.headers.get("x-cron-secret");
-  if (secret !== process.env.CRON_SECRET) {
+  if (!isAuthorizedCronRequest(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

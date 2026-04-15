@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
 import { assertCanCreateVendors, getBillingStateForUser } from "@/lib/billing/entitlements";
 import { revalidatePath } from "next/cache";
+import { DEFAULT_ALERT_DAYS, normalizeAlertDays } from "@/lib/vendor-alerts";
 
 export interface VendorFormData {
   name: string;
@@ -105,14 +106,30 @@ export async function getBillingState() {
 
 export async function getAlertSettings() {
   const user = await requireUser();
-  return prisma.vendorAlertSetting.findUnique({ where: { userId: user.sub } });
+  const settings = await prisma.vendorAlertSetting.findUnique({ where: { userId: user.sub } });
+
+  if (!settings) {
+    return {
+      alertDays: DEFAULT_ALERT_DAYS,
+      weeklySummary: true,
+    };
+  }
+
+  return {
+    ...settings,
+    alertDays: normalizeAlertDays(settings.alertDays),
+  };
 }
 
 export async function saveAlertSettings(alertDays: number[], weeklySummary: boolean) {
   const user = await requireUser();
+  const normalizedAlertDays = normalizeAlertDays(alertDays);
+
   await prisma.vendorAlertSetting.upsert({
     where: { userId: user.sub },
-    update: { alertDays, weeklySummary },
-    create: { userId: user.sub, alertDays, weeklySummary },
+    update: { alertDays: normalizedAlertDays, weeklySummary },
+    create: { userId: user.sub, alertDays: normalizedAlertDays, weeklySummary },
   });
+
+  revalidatePath("/dashboard");
 }

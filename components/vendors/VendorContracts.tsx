@@ -20,6 +20,7 @@ import { Select } from "@/components/ui/select";
 import { UpgradePlanDialog, type PaidPlan } from "@/components/vendors/upgrade";
 import { createVendor, updateVendor, deleteVendor, importVendorsCSV, type VendorFormData } from "@/actions/vendor";
 import type { BillingState } from "@/lib/billing/entitlements";
+import { NOTICE_PERIOD_OPTIONS } from "@/lib/vendor-alerts";
 
 interface Vendor {
   id: string;
@@ -54,7 +55,7 @@ const STATUS_LABEL: Record<Status, string> = {
   critical: "Critical",
 };
 
-const NOTICE_OPTIONS = [7, 14, 30, 45, 60, 90];
+const NOTICE_OPTIONS = [...NOTICE_PERIOD_OPTIONS];
 
 function VendorForm({
   initial,
