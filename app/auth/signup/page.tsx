@@ -31,7 +31,6 @@ export default function SignUpPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [agreed, setAgreed] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [confirmTouched, setConfirmTouched] = useState(false);
@@ -43,7 +42,7 @@ export default function SignUpPage() {
   const passwordsMatch = password === confirmPassword;
   const confirmError = confirmTouched && confirmPassword.length > 0 && !passwordsMatch;
   const confirmSuccess = confirmTouched && confirmPassword.length > 0 && passwordsMatch;
-  const canSubmit = agreed && passwordsMatch && password.length >= 8 && confirmPassword.length > 0 && !isPending;
+  const canSubmit = passwordsMatch && password.length >= 8 && confirmPassword.length > 0 && !isPending;
 
   function startOAuth(provider: "google" | "github") {
     setOauthLoading(provider);
@@ -335,30 +334,6 @@ export default function SignUpPage() {
                       </div>
                     )}
                   </div>
-
-                  {/* Agreement */}
-                  <label className="flex items-start gap-2.5 cursor-pointer mt-1">
-                    <div
-                      onClick={() => setAgreed(!agreed)}
-                      className="mt-0.5 w-4 h-4 rounded border flex-shrink-0 flex items-center justify-center transition-colors"
-                      style={{
-                        borderColor: agreed ? "#1a1a1a" : "#ccc",
-                        backgroundColor: agreed ? "#1a1a1a" : "rgba(255,255,255,0.7)",
-                      }}
-                    >
-                      {agreed && <Check size={10} color="white" strokeWidth={3} />}
-                    </div>
-                    <span className="text-xs leading-relaxed" style={{ color: "#666", fontFamily: "'Helvetica Neue', sans-serif" }}>
-                      I agree to the{" "}
-                      <span className="underline underline-offset-2 hover:text-black transition-colors cursor-pointer" style={{ color: "#333" }}>
-                        Terms of Service
-                      </span>{" "}
-                      and{" "}
-                      <span className="underline underline-offset-2 hover:text-black transition-colors cursor-pointer" style={{ color: "#333" }}>
-                        Privacy Policy
-                      </span>
-                    </span>
-                  </label>
 
                   <button
                     type="submit"
