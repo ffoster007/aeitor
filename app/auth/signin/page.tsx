@@ -217,13 +217,6 @@ function SignInPageContent() {
               </button>
             </form>
           </div>
-
-          <p className="text-center text-xs mt-6" style={{ color: "#aaa", fontFamily: "'Helvetica Neue', sans-serif", lineHeight: "1.6" }}>
-            By signing in, you agree to our{" "}
-            <Link href="/terms" className="underline underline-offset-2 hover:text-neutral-600">Terms of Service</Link>
-            {" "}and{" "}
-            <Link href="/privacy" className="underline underline-offset-2 hover:text-neutral-600">Privacy Policy</Link>.
-          </p>
         </div>
       </section>
     </main>
