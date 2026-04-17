@@ -63,7 +63,7 @@ export default function HelpAndFeedback() {
 				onClick={() => setIsOpen((prev) => !prev)}
 				aria-haspopup="menu"
 				aria-expanded={isOpen}
-				className="flex items-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-[11px] text-[var(--text-soft)] transition-colors hover:border-[var(--border)] hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)]"
+				className="flex items-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-[11px] text-[var(--text-soft)] transition-colors hover:border-[var(--border)] hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)] cursor-pointer"
 			>
 				<LifeBuoy size={14} strokeWidth={1.8} />
 				<span className="hidden sm:inline">Help &amp; Feedback</span>
