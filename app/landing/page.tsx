@@ -18,7 +18,7 @@ const PRICING_PLANS = [
 	},
 	{
 		name: "Growth",
-		price: "$10",
+		price: "$6",
 		cadence: "/user /month",
 		description: "For growing teams that need to track more contracts and vendors",
 		highlight: "FOR TEAMS",
@@ -31,7 +31,7 @@ const PRICING_PLANS = [
 	},
 	{
 		name: "Scale",
-		price: "$20",
+		price: "$10",
 		cadence: "/user /month",
 		description: "For organizations and businesses that need to track unlimited contracts, and get early access to new features.",
 		highlight: "FOR BUSINESSES",

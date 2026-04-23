@@ -16,7 +16,7 @@ export const BILLING_PLANS = [
   {
     id: "GROWTH",
     name: "Growth",
-    priceLabel: "$10",
+    priceLabel: "$6",
     cadenceLabel: "/month",
     badge: "Recommended",
     tone: "blue" as const,
@@ -30,7 +30,7 @@ export const BILLING_PLANS = [
   {
     id: "SCALE",
     name: "Scale",
-    priceLabel: "$20",
+    priceLabel: "$10",
     cadenceLabel: "/month",
     badge: "Business",
     tone: "amber" as const,
