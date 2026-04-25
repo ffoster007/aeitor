@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Never miss a renewal again — Aeitor</title>
+  <!--[if mso]>
+  <noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript>
+  <![endif]-->
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500;600&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background-color: #F5F3EE;
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      color: #1C1B18;
+    }
+
+    .email-wrapper {
+      max-width: 600px;
+      margin: 40px auto;
+      background: #FFFFFF;
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid #E2DFDA;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      background-color: #0F1A14;
+      padding: 36px 48px 32px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 40px;
+    }
+
+    .logo-mark {
+      width: auto;
+      height: auto;
+      background: transparent;
+      border-radius: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-name {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      font-size: 18px;
+      color: #FFFFFF;
+      letter-spacing: -0.3px;
+    }
+
+    .header-eyebrow {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #22C47A;
+      margin-bottom: 16px;
+    }
+
+    .header-headline {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: 38px;
+      line-height: 1.15;
+      color: #FFFFFF;
+      margin-bottom: 8px;
+    }
+
+    .header-headline em {
+      color: #22C47A;
+      font-style: italic;
+    }
+
+    .header-sub {
+      font-size: 15px;
+      color: #8A9990;
+      line-height: 1.6;
+      margin-top: 12px;
+    }
+
+    /* ── PROBLEM STRIP ── */
+    .problem-strip {
+      background: #F8F6F1;
+      border-top: 3px solid #E74C3C;
+      padding: 28px 48px;
+    }
+
+    .problem-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #C0392B;
+      margin-bottom: 10px;
+    }
+
+    .problem-text {
+      font-size: 17px;
+      line-height: 1.65;
+      color: #2C2B27;
+    }
+
+    .problem-text strong {
+      color: #1C1B18;
+    }
+
+    /* ── PAIN POINTS ── */
+    .pain-grid {
+      padding: 36px 48px;
+      border-bottom: 1px solid #E2DFDA;
+    }
+
+    .pain-grid-title {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      color: #7A7770;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .pain-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid #EEEBE6;
+    }
+
+    .pain-item:last-child {
+      border-bottom: none;
+    }
+
+    .pain-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: #FEF0EF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 16px;
+    }
+
+    .pain-content h4 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1C1B18;
+      margin-bottom: 3px;
+    }
+
+    .pain-content p {
+      font-size: 13px;
+      color: #6B6965;
+      line-height: 1.5;
+    }
+
+    /* ── SOLUTION SECTION ── */
+    .solution {
+      padding: 36px 48px;
+      background: #FFFFFF;
+    }
+
+    .section-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #0F6E56;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: 26px;
+      color: #1C1B18;
+      margin-bottom: 24px;
+      line-height: 1.25;
+    }
+
+    .feature-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+      align-items: flex-start;
+    }
+
+    .feature-check {
+      width: 20px;
+      height: 20px;
+      background: #1D9E75;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .feature-check svg {
+      width: 10px;
+      height: 10px;
+    }
+
+    .feature-text {
+      font-size: 14px;
+      color: #2C2B27;
+      line-height: 1.55;
+    }
+
+    .feature-text strong {
+      color: #0F6E56;
+    }
+
+    /* ── STAT ROW ── */
+    .stat-row {
+      display: flex;
+      gap: 1px;
+      background: #E2DFDA;
+      margin: 0;
+      border-top: 1px solid #E2DFDA;
+      border-bottom: 1px solid #E2DFDA;
+    }
+
+    .stat-cell {
+      flex: 1;
+      background: #F8F6F1;
+      padding: 24px 20px;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: 32px;
+      color: #0F6E56;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .stat-desc {
+      font-size: 12px;
+      color: #7A7770;
+      line-height: 1.4;
+    }
+
+    /* ── CTA ── */
+    .cta-section {
+      padding: 40px 48px;
+      text-align: center;
+      background: #FFFFFF;
+    }
+
+    .cta-heading {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: 22px;
+      color: #1C1B18;
+      margin-bottom: 8px;
+    }
+
+    .cta-sub {
+      font-size: 14px;
+      color: #6B6965;
+      margin-bottom: 28px;
+      line-height: 1.6;
+    }
+
+    .cta-btn {
+      display: inline-block;
+      background: #0F1A14;
+      color: #FFFFFF;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      padding: 14px 36px;
+      border-radius: 4px;
+      text-decoration: none;
+      letter-spacing: 0.2px;
+    }
+
+    .cta-btn-secondary {
+      display: inline-block;
+      margin-top: 12px;
+      color: #0F6E56;
+      font-size: 13px;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .pricing-note {
+      margin-top: 20px;
+      padding: 14px 20px;
+      background: #F0FAF5;
+      border: 1px solid #9FE1CB;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #0F6E56;
+    }
+
+    /* ── FOOTER ── */
+    .footer {
+      background: #F0EDE7;
+      padding: 28px 48px;
+      border-top: 1px solid #E2DFDA;
+    }
+
+    .footer-logo {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      color: #3A3934;
+      margin-bottom: 10px;
+    }
+
+    .footer-text {
+      font-size: 12px;
+      color: #9A9793;
+      line-height: 1.7;
+    }
+
+    .footer-text a {
+      color: #6B6965;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .footer-divider {
+      border: none;
+      border-top: 1px solid #E2DFDA;
+      margin: 16px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="email-wrapper">
+
+    <!-- HEADER -->
+    <div class="header">
+      <div class="logo">
+            <div class="logo-mark">
+                <img src="aeitor.png" width="28" height="28" alt="Aeitor logo">
+            </div>
+        <span class="logo-name">Aeitor</span>
+      </div>
+      <p class="header-eyebrow">Vendor Contract Management</p>
+      <h1 class="header-headline">
+        Stop letting renewals<br>catch you <em>off guard.</em>
+      </h1>
+      <p class="header-sub">
+        One workspace to track every vendor contract, renewal date, and monthly spend — before the notice window closes.
+      </p>
+    </div>
+
+    <!-- PROBLEM STRIP -->
+    <div class="problem-strip">
+      <p class="problem-label">The real cost of missed renewals</p>
+      <p class="problem-text">
+        Most teams only discover a contract auto-renewed when they see the charge. By then, <strong>the 30 or 60-day cancellation window has already closed</strong> — and you're locked in for another year at a price you never agreed to renegotiate.
+      </p>
+    </div>
+
+    <!-- PAIN POINTS -->
+    <div class="pain-grid">
+      <p class="pain-grid-title">Sound familiar?</p>
+
+      <div class="pain-item">
+        <div class="pain-icon">📅</div>
+        <div class="pain-content">
+          <h4>Renewal dates buried in inboxes and spreadsheets</h4>
+          <p>Critical dates scattered across finance, procurement, and legal — no single source of truth.</p>
+        </div>
+      </div>
+
+      <div class="pain-item">
+        <div class="pain-icon">⏰</div>
+        <div class="pain-content">
+          <h4>Notice periods missed by days</h4>
+          <p>Vendors bury cancellation windows in contracts. By the time someone checks, the window is gone.</p>
+        </div>
+      </div>
+
+      <div class="pain-item">
+        <div class="pain-icon">💸</div>
+        <div class="pain-content">
+          <h4>No visibility into total SaaS spend</h4>
+          <p>Finance can't answer "what do we spend on software monthly?" without a multi-hour audit.</p>
+        </div>
+      </div>
+
+      <div class="pain-item">
+        <div class="pain-icon">🔁</div>
+        <div class="pain-content">
+          <h4>Auto-renewals on contracts you wanted to renegotiate</h4>
+          <p>Missed the window. The vendor knows it. Your leverage is gone.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SOLUTION -->
+    <div class="solution">
+      <p class="section-label">How Aeitor helps</p>
+      <h2 class="section-title">Every renewal, before it catches you off guard.</h2>
+
+      <div class="feature-row">
+        <div class="feature-check">
+          <svg viewBox="0 0 10 10" fill="none"><path d="M2 5.5L4 7.5L8 3" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <p class="feature-text"><strong>90/60/30-day automated alerts</strong> — Get notified well before the notice window closes, not after.</p>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-check">
+          <svg viewBox="0 0 10 10" fill="none"><path d="M2 5.5L4 7.5L8 3" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <p class="feature-text"><strong>Contracts, calendar & spending views</strong> — Switch between how you need to see data, not how a spreadsheet forces you to.</p>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-check">
+          <svg viewBox="0 0 10 10" fill="none"><path d="M2 5.5L4 7.5L8 3" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <p class="feature-text"><strong>CSV import</strong> — Migrate your existing contracts in minutes. No manual re-entry.</p>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-check">
+          <svg viewBox="0 0 10 10" fill="none"><path d="M2 5.5L4 7.5L8 3" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <p class="feature-text"><strong>Notice period tracking</strong> — See exactly how many days remain in your cancellation window at a glance.</p>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-check">
+          <svg viewBox="0 0 10 10" fill="none"><path d="M2 5.5L4 7.5L8 3" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <p class="feature-text"><strong>Total monthly spend visibility</strong> — Know your vendor costs across contracts without digging through invoices.</p>
+      </div>
+    </div>
+
+    <!-- STAT ROW -->
+    <div class="stat-row">
+      <div class="stat-cell">
+        <div class="stat-number">90</div>
+        <p class="stat-desc">days early warning<br>before renewal</p>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-number">Free</div>
+        <p class="stat-desc">to start tracking<br>up to 2 contracts</p>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-number">$6</div>
+        <p class="stat-desc">per month for<br>up to 50 contracts</p>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-section">
+      <h3 class="cta-heading">Start tracking your renewals today</h3>
+      <p class="cta-sub">
+        Free to get started. No annual lock-in. Add your first contracts in under 5 minutes.
+      </p>
+      <a href="https://www.aeitor.com/auth/signup" class="cta-btn">Get started for free →</a>
+      <br>
+      <a href="https://www.aeitor.com/" class="cta-btn-secondary">See how it works first</a>
+
+      <div class="pricing-note">
+        ✦ &nbsp;Free tier available · Growth plan from $6/mo · No annual commitment required
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+      <p class="footer-logo">Aeitor</p>
+      <p class="footer-text">
+        You're receiving this because you expressed interest in vendor management tools.<br>
+        <a href="#">Unsubscribe</a> · <a href="#">Privacy Policy</a> · <a href="https://www.aeitor.com">aeitor.com</a>
+      </p>
+      <hr class="footer-divider" />
+      <p class="footer-text">© 2025 Aeitor. All rights reserved.</p>
+    </div>
+
+  </div>
+</body>
+</html>
