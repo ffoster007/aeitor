@@ -178,24 +178,46 @@ export default async function LandingPage() {
             className="text-4xl md:text-5xl leading-tight max-w-xl mb-4"
             style={{ color: "#111", fontFamily: "'Georgia', 'Times New Roman', serif", fontWeight: 400 }}
           >
-            Every renewal,{" "}
-            <em style={{ fontStyle: "italic", color: "#555" }}>before</em>
-            {" "}it catches you off guard.
+            Every vendor contract,{" "}
+            <em style={{ fontStyle: "italic", color: "#555" }}>SaaS, leases, services</em>
+            {" "}before it slips past the notice window.
           </h2>
           <p
             className="text-sm max-w-sm leading-relaxed"
             style={{ color: "#666", fontFamily: "'Helvetica Neue', sans-serif" }}
           >
-            Track vendor renewals, notice periods, and monthly spend in one workspace.
-            Switch between contracts, calendar, and spending views, import CSVs, and keep 90/60/30-day alerts on schedule.
+            Built for Finance and Procurement teams — not just IT. Track any vendor contract: SaaS subscriptions, office leases, service agreements. Set notice periods that match your actual cancellation windows. Get 90/60/30/14/7-day alerts via email before the deadline locks you in.
           </p>
         </div>
+
+        {/* Differentiator strip */}
+            <div className="rounded-xl border border-neutral-200 p-5 mb-6" style={{ backgroundColor: "#fff" }}>
+                <p className="text-xs uppercase tracking-widest mb-4"
+                    style={{ color: "#aaa", fontFamily: "'Helvetica Neue', sans-serif" }}>
+                    Built for Finance &amp; Procurement — not just IT
+                </p>
+                <div className="grid grid-cols-3 gap-3">
+                    {[
+                    { title: "Not SaaS-only", body: "Track office leases, retainers, and service agreements — every vendor that touches your budget." },
+                    { title: "Notice periods that match your contracts", body: "Set the exact cancellation window per vendor. Know when the legal window closes, not just when the invoice arrives." },
+                    { title: "No IT setup required", body: "No Okta. No integrations. Sign up and start adding contracts in under 10 minutes." },
+                    ].map(({ title, body }) => (
+                    <div key={title} className="rounded-xl border border-neutral-200 p-4"
+                        style={{ backgroundColor: "#f9f8f5" }}>
+                        <p className="text-sm font-medium text-neutral-800 mb-1"
+                        style={{ fontFamily: "'Helvetica Neue', sans-serif" }}>{title}</p>
+                        <p className="text-xs leading-relaxed text-neutral-500"
+                        style={{ fontFamily: "'Helvetica Neue', sans-serif" }}>{body}</p>
+                    </div>
+                    ))}
+            </div>
+            </div>
 
         {/* Stat cards */}
         <div className="grid grid-cols-3 gap-3 mb-6">
           {[
             { label: "Total vendors", value: String(VENDORS.length), sub: "active in this workspace", color: "#111" },
-            { label: "Renewing in 30d", value: String(renewingIn30Days), sub: "notice windows already open", color: "#c0392b" },
+            { label: "Renewing in 30d", value: String(renewingIn30Days), sub: "inside the contractual notice window — act now", color: "#c0392b" },
             { label: "Monthly spend", value: formatCompactCurrency(totalMonthlySpend), sub: "visible in Spending view", color: "#111" },
           ].map(({ label, value, sub, color }) => (
             <div
@@ -236,7 +258,7 @@ export default async function LandingPage() {
           >
             <div>
               <p className="text-sm font-medium text-neutral-800">Vendor contracts</p>
-              <p className="text-xs text-neutral-400 mt-0.5">Contracts view sorted by renewal date</p>
+              <p className="text-xs text-neutral-400 mt-0.5">SaaS, leases, and service contracts — sorted by urgency</p>
             </div>
             <div className="flex gap-2">
               {["Contracts", "Calendar", "Spending"].map((f, i) => (
@@ -311,7 +333,7 @@ export default async function LandingPage() {
           className="text-xs uppercase tracking-widest mt-8 mb-4"
           style={{ color: "#aaa", fontFamily: "'Helvetica Neue', sans-serif" }}
         >
-          Automated alerts in the workspace
+          Renewal alerts — sent before the notice window closes
         </p>
         <div className="grid grid-cols-3 gap-3">
           {ALERTS.map(({ days, vendor, value, level }) => (
