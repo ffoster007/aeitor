@@ -16,7 +16,7 @@ export const BILLING_PLANS = [
   {
     id: "GROWTH",
     name: "Growth",
-    priceLabel: "$6",
+    priceLabel: "$10",
     cadenceLabel: "/month",
     badge: "Recommended",
     tone: "blue" as const,
@@ -30,7 +30,7 @@ export const BILLING_PLANS = [
   {
     id: "SCALE",
     name: "Scale",
-    priceLabel: "$10",
+    priceLabel: "$20",
     cadenceLabel: "/month",
     badge: "Business",
     tone: "amber" as const,
@@ -39,7 +39,6 @@ export const BILLING_PLANS = [
     features: [
       "Everything in Growth",
       "Unlimited contracts and vendors",
-      "Exclusive early updates",
     ],
     vendorLimit: null,
     csvExport: true,
